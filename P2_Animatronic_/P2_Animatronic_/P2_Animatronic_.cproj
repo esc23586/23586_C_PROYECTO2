@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>P2_Animatronic</AssemblyName>
-    <Name>P2_Animatronic</Name>
-    <RootNamespace>P2_Animatronic</RootNamespace>
+    <AssemblyName>P2_Animatronic_</AssemblyName>
+    <Name>P2_Animatronic_</Name>
+    <RootNamespace>P2_Animatronic_</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>

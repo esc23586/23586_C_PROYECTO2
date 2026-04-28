@@ -45,8 +45,8 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 void intUART(void);
 void writeChar(char c);
 void writeString(char *string);
-void writeNumber(uint8_t num);
-void displayASCII(uint8_t value);//Cmabiar
+//void writeNumber(uint8_t num);
+//void displayASCII(uint8_t value);//Cmabiar
 void printMenu(void);
 /****************************************/
 // Main Function
@@ -65,6 +65,10 @@ int main(void)
 	// LED en PB5 como salida --- va indicando el modo.
 	DDRB |= (1<<DDB5);
 	PORTB &= ~(1<<PORTB5); // inicialmente apagado
+	
+	//LED en PB4 como salida--- eprom
+	DDRB |= (1<<DDB4);
+	PORTB &= ~(1<<PORTB4); // inicialmente apagado
 	
 	//inicializaciónes 
 	intUART();//Comunicación UART
@@ -91,6 +95,7 @@ void printMenu(void)
 	writeString("=========== Menu Animatrónico=============\r\n");
 	writeString("1: Mover Ojos \r\n");
 	writeString("2: Mover Parpados\r\n");
+	writeString("3: Mostrar Ultima posición guradada EEPROM\r\n");
 	writeString("==============================\r\n");
 	writeString("\r\n");
 	writeString("\r\n");
@@ -149,3 +154,69 @@ void writeString(char *string)
 
 /**********************************************************************/
 // Interrupt routines
+//modo de utilización
+ISR(USART_RX_vect)
+{
+	uint8_t bufferRX = UDR0;
+
+	writeChar(bufferRX);
+	writeString("\r\n");
+	
+
+	// MODO 0 ? MENU
+	if (modo == 0)
+	{
+		
+		if (bufferRX == '1')
+		{
+			PORTB |= (1<<PORTB5); // encender LED
+			writeString("Leyendo potenciometro...xd\r\n");
+			// aquí iría la lectura como tal
+			//********************************
+			ADC_Read(2); // dummy
+			uint16_t valor = ADC_Read(2);
+
+			itoa(valor, buffer, 10);
+
+			writeString(" -> ADC: ");
+			writeString(buffer);
+			writeString("\r\n");
+			
+			//**********************************
+		}
+		
+		else if (bufferRX == '2')
+		{
+			PORTB |= (1<<PORTB5); // encender LED
+			writeString("Ingrese el angulo para el servomotor:\r\n");
+			modo = 2; // CAMBIAS DE MODO
+			return;   // NOTA: se sale sin mostrar menú
+		}
+		else if(bufferRX == '3') // modo traer la ultima posición guardada en emprom
+		{
+			PORTB |= (1<<PORTB4); // encender LED pb4
+			writeString("Ultima posición guardada servomotores:\r\n");
+			//traer la ultima posición 
+		}
+		else
+		{
+			writeString("Opcion invalida\r\n");
+		}
+
+		printMenu();
+	}
+
+
+//Lesctura en ASCII: 
+
+	//  Modo 2---ESPERANDO CARACTER
+	else if (modo == 2)
+	{
+		
+		writeString("Grado: ");
+		//aqui la logica de lo que pasa al agregar el grado.
+	
+		modo = 0; //regresar al menú
+		printMenu();
+	}
+}

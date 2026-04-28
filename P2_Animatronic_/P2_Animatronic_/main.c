@@ -37,9 +37,10 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 
 //nuevos
 #include <stdlib.h>   // para itoa
+#include <string.h>
 #include "ADC/adc.h" //para importar mi adc
-#include "PWM1F/PWM1.h"//timer 1 
-
+//#include "PWM1F/PWM1.h"//timer 1 
+#include "Servo/servo.h"//Timer 1
 
 /****************************************/
 // Function prototypes
@@ -50,44 +51,44 @@ void writeString(char *string);
 //void writeNumber(uint8_t num);
 //void displayASCII(uint8_t value);//Cmabiar
 void printMenu(void);
+
 /****************************************/
 // Main Function
+//globales ;
 volatile uint8_t modo = 0;//MODO Predeterminado
 //Aqui puede ir la parte de la cara y sus 
+char buffer[20];        // buffer de entrada
+char out[10];           // buffer para imprimir números
+volatile uint8_t idx = 0;
 
 
-//parte del Buffer
-char buffer[10];
-
+// Main Function
 //***********************************  MAIN   **************************************//
 int main(void)
 {
 	cli();
 	//Entradas- y salidas declaración
-	// LED en PB5 como salida --- va indicando el modo.
-	DDRB |= (1<<DDB5);
-	PORTB &= ~(1<<PORTB5); // inicialmente apagado
-	
-	//LED en PB4 como salida--- eprom
-	DDRB |= (1<<DDB4);
-	PORTB &= ~(1<<PORTB4); // inicialmente apagado
+	DDRB |= (1<<DDB5) | (1<<DDB4);
+	PORTB &= ~((1<<PORTB5) | (1<<PORTB4));
 	
 	//inicializaciónes 
 	intUART();//Comunicación UART
+	/*
 	PWM1_Init(); // Servo 1 y 2 (Timer1)
 	PWM3_Init();// Led manual con TImer 0
+	*/
+	
+	Servo_Init();// CONTROL DE servomotores Timer 1
 	ADC_Init();//ADC
-	//pwm too
+	
 	
 	
 	sei();// BUENAS CONSTUMBRES
 
-	//imprimir el menu nuevamente 
-	printMenu();/
-	
-	
+	printMenu();
 	while (1)
 	{
+		
 	}
 }
 /*****************************************************************************/
@@ -182,7 +183,6 @@ void writeString(char *string)
 	*/
 	
 	/********************************/
-	volatile uint8_t idx = 0;
 	
 			ISR(USART_RX_vect)
 			{
@@ -208,12 +208,14 @@ void writeString(char *string)
 							modo = 1;
 							writeString("Modo OJOS\r\n");
 							writeString("Use: I1:[angulo], D1:[angulo], I2:[angulo], D2:[angulo]\r\n");
+							writeString("Con x puede salir\r\n");
 						}
 						else if (buffer[0] == '2')
 						{
 							modo = 2;
 							writeString("Modo PARPADOS\r\n");
 							writeString("Use: M1:[angulo], M2:[angulo]\r\n");
+							writeString("Con x puede salir\r\n");
 						}
 						else if (buffer[0] == '3')
 						{
@@ -235,34 +237,43 @@ void writeString(char *string)
 						if (strncmp(buffer, "I1:", 3) == 0)
 						{
 							int ang = atoi(&buffer[3]);
-							writeString("Ojo iz base -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+							Servo_Set(0, ang);
+
+							writeString("I1 -");
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
+							
 						}
 						else if (strncmp(buffer, "D1:", 3) == 0)
 						{
 							int ang = atoi(&buffer[3]);
+							Servo_Set(1, ang);
 							writeString("Ojo der base -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
 						}
 						else if (strncmp(buffer, "I2:", 3) == 0)
 						{
 							int ang = atoi(&buffer[3]);
+							Servo_Set(2, ang);
 							writeString("Pupila iz -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
 						}
 						else if (strncmp(buffer, "D2:", 3) == 0)
 						{
-							int ang = atoi(&buffer[3]);
-							writeString("Pupila der -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+							uint8_t ang = atoi(&buffer[3]);
+							Servo_Set(3, ang);
+
+							writeString("D2 -> ");
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
+							
 						}
 						else if (buffer[0] == 'x') // salir
 						{
@@ -282,18 +293,22 @@ void writeString(char *string)
 					{
 						if (strncmp(buffer, "M1:", 3) == 0)
 						{
-							int ang = atoi(&buffer[3]);
-							writeString("Parpado iz -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+							uint8_t ang = atoi(&buffer[3]);
+							Servo_Set(4, ang);
+
+							writeString("M1 -> ");
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
 						}
 						else if (strncmp(buffer, "M2:", 3) == 0)
 						{
-							int ang = atoi(&buffer[3]);
-							writeString("Parpado der -> ");
-							itoa(ang, buffer, 10);
-							writeString(buffer);
+							uint8_t ang = atoi(&buffer[3]);
+							Servo_Set(5, ang);
+
+							writeString("M2 -> ");
+							itoa(ang, out, 10);
+							writeString(out);
 							writeString("\r\n");
 						}
 						else if (buffer[0] == 'x')

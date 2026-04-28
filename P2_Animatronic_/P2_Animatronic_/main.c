@@ -88,9 +88,135 @@ int main(void)
 	printMenu();
 	while (1)
 	{
+		//Realizar la comparación en el Main
+				if (modo == 0)
+				{
+					if (buffer[0] == '1')
+					{
+						modo = 1;
+						writeString("Modo OJOS\r\n");
+						writeString("I1,D1,I2,D2 + angulo | x salir\r\n");
+					}
+					else if (buffer[0] == '2')
+					{
+						modo = 2;
+						writeString("Modo PARPADOS\r\n");
+						writeString("M1,M2 + angulo | x salir\r\n");
+					}
+					else if (buffer[0] == '3')
+					{
+						writeString("EEPROM pendiente\r\n");
+					}
+					else
+					{
+						writeString("Opcion invalida\r\n");
+					}
+
+					printMenu();
+				}
+
+				// ================= OJOS =================
+				else if (modo == 1)
+				{
+					if (strncmp(buffer, "I1:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(0, ang);
+
+						writeString("I1 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (strncmp(buffer, "D1:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(1, ang);
+
+						writeString("D1 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (strncmp(buffer, "I2:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(2, ang);
+
+						writeString("I2 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (strncmp(buffer, "D2:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(3, ang);
+
+						writeString("D2 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (buffer[0] == 'x')
+					{
+						modo = 0;
+						printMenu();
+					}
+					else
+					{
+						writeString("Comando invalido\r\n");
+					}
+				}
+
+				// ================= PARPADOS =================
+				else if (modo == 2)
+				{
+					if (strncmp(buffer, "M1:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(4, ang);
+
+						writeString("M1 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (strncmp(buffer, "M2:", 3) == 0)
+					{
+						uint8_t ang = atoi(&buffer[3]);
+						Servo_Set(5, ang);
+
+						writeString("M2 -> ");
+						itoa(ang, out, 10);
+						writeString(out);
+						writeString("\r\n");
+					}
+					else if (buffer[0] == 'x')
+					{
+						modo = 0;
+						printMenu();
+					}
+					else
+					{
+						writeString("Comando invalido\r\n");
+					}
+				}
+
+				idx = 0;
+			}
+			else
+			{
+				if (idx < sizeof(buffer)-1)
+				{
+					buffer[idx++] = c;
+				}
+			}
+		}
+		// las subrutinas de la rutina
 		
-	}
-}
+		//la interrupción debe ser unicamente para levantar banderas. 
+
 /*****************************************************************************/
 // NON-Interrupt subroutines
 
@@ -104,6 +230,7 @@ void printMenu(void)
 	writeString("==============================\r\n");
 	writeString("\r\n");
 	writeString("\r\n");
+	
 	PORTB &= ~(1<<PORTB5); // apagar LED
 	//Apagar todos los demás leds de modo too
 	
@@ -159,7 +286,6 @@ void writeString(char *string)
 
 /**********************************************************************/
 // Interrupt routines
-
 			
 //Lógica de rutina de interrupción: lo que se planea ver en la terminal y su interación:
 	/**********************************
@@ -183,21 +309,19 @@ void writeString(char *string)
 	*/
 	
 	/********************************/
-	
+/*
 			ISR(USART_RX_vect)
 			{
 				char c = UDR0;
+				writeChar(c);// eco
 
-				writeChar(c); // eco
 
-				// Si se le da enter al final entoncecs continua y procesa mi comando
+				// ENTER: Si se le da enter al final entoncecs continua y procesa mi comando
 				if (c == '\r' || c == '\n')
 				{
-					buffer[idx] = '\0'; // cerrar string
+					buffer[idx] = '\0';// cerrar string
 					writeString("\r\n");
 					
-					
-
 					// =======================
 					// MODO 0 ? MENÚ
 					// =======================
@@ -205,10 +329,12 @@ void writeString(char *string)
 					{
 						if (buffer[0] == '1')
 						{
+							
 							modo = 1;
 							writeString("Modo OJOS\r\n");
 							writeString("Use: I1:[angulo], D1:[angulo], I2:[angulo], D2:[angulo]\r\n");
 							writeString("Con x puede salir\r\n");
+							
 						}
 						else if (buffer[0] == '2')
 						{
@@ -225,7 +351,7 @@ void writeString(char *string)
 						{
 							writeString("Opcion invalida\r\n");
 						}
-
+						
 						printMenu();
 					}
 
@@ -326,11 +452,43 @@ void writeString(char *string)
 					idx = 0;
 				}
 				else
-				{
-					// guardar en buffer
-					if (idx < sizeof(buffer) - 1)
 					{
-						buffer[idx++] = c;
+						// guardar en buffer
+						if (idx < sizeof(buffer)-1)
+						{
+							buffer[idx++] = c;
+						}
 					}
 				}
-			}
+				
+			
+*/
+			
+//Continuación del código
+ISR(USART_RX_vect)
+{
+	char c = UDR0;
+	writeChar(c);
+
+	// ENTER
+	if (c == '\r' || c == '\n')
+	{
+		buffer[idx] = '\0';
+		writeString("\r\n");
+
+		// ================= MENU =================
+		
+			
+
+			
+		
+
+		// ================= PARPADOS =================
+		
+			
+
+			
+		}
+	
+	
+}

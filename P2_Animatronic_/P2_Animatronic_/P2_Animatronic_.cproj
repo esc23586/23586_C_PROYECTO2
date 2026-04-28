@@ -129,11 +129,23 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PWM1F\PWM1.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PWM1F\PWM1.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PWMm\PWM.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PWMm\PWM.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ADC" />
     <Folder Include="UART" />
-    <Folder Include="PWM1" />
+    <Folder Include="PWM1F" />
     <Folder Include="PWMm" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />

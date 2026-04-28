@@ -38,6 +38,8 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 //nuevos
 #include <stdlib.h>   // para itoa
 #include "ADC/adc.h" //para importar mi adc
+#include "PWM1F/PWM1.h"//timer 1 
+
 
 /****************************************/
 // Function prototypes
@@ -72,6 +74,8 @@ int main(void)
 	
 	//inicializaciónes 
 	intUART();//Comunicación UART
+	PWM1_Init(); // Servo 1 y 2 (Timer1)
+	PWM3_Init();// Led manual con TImer 0
 	ADC_Init();//ADC
 	//pwm too
 	
@@ -154,69 +158,164 @@ void writeString(char *string)
 
 /**********************************************************************/
 // Interrupt routines
-//modo de utilización
-ISR(USART_RX_vect)
-{
-	uint8_t bufferRX = UDR0;
 
-	writeChar(bufferRX);
-	writeString("\r\n");
-	
-
-	// MODO 0 ? MENU
-	if (modo == 0)
-	{
-		
-		if (bufferRX == '1')
-		{
-			PORTB |= (1<<PORTB5); // encender LED
-			writeString("Leyendo potenciometro...xd\r\n");
-			// aquí iría la lectura como tal
-			//********************************
-			ADC_Read(2); // dummy
-			uint16_t valor = ADC_Read(2);
-
-			itoa(valor, buffer, 10);
-
-			writeString(" -> ADC: ");
-			writeString(buffer);
-			writeString("\r\n");
 			
-			//**********************************
-		}
-		
-		else if (bufferRX == '2')
-		{
-			PORTB |= (1<<PORTB5); // encender LED
-			writeString("Ingrese el angulo para el servomotor:\r\n");
-			modo = 2; // CAMBIAS DE MODO
-			return;   // NOTA: se sale sin mostrar menú
-		}
-		else if(bufferRX == '3') // modo traer la ultima posición guardada en emprom
-		{
-			PORTB |= (1<<PORTB4); // encender LED pb4
-			writeString("Ultima posición guardada servomotores:\r\n");
-			//traer la ultima posición 
-		}
-		else
-		{
-			writeString("Opcion invalida\r\n");
-		}
-
-		printMenu();
-	}
-
-
-//Lesctura en ASCII: 
-
-	//  Modo 2---ESPERANDO CARACTER
-	else if (modo == 2)
-	{
-		
-		writeString("Grado: ");
-		//aqui la logica de lo que pasa al agregar el grado.
+//Lógica de rutina de interrupción: lo que se planea ver en la terminal y su interación:
+	/**********************************
+	*Primero: 
+			pregunta el modo general
+			1 ? modo ojos
+			2 ? modo párpados
+	*Si 1 fue presionado:
+			CON 1-- los de labase del ojo
+					I1:90 
+					D1:45
+			CON 2----Los de la pupila
+					I2:30
+					D2:120
+					x ? salir
+			
+	*Si 2 fue preionado:
+			M1:90
+			M2:40
+			x ? salir
+	*/
 	
-		modo = 0; //regresar al menú
-		printMenu();
-	}
-}
+	/********************************/
+	volatile uint8_t idx = 0;
+	
+			ISR(USART_RX_vect)
+			{
+				char c = UDR0;
+
+				writeChar(c); // eco
+
+				// Si se le da enter al final entoncecs continua y procesa mi comando
+				if (c == '\r' || c == '\n')
+				{
+					buffer[idx] = '\0'; // cerrar string
+					writeString("\r\n");
+					
+					
+
+					// =======================
+					// MODO 0 ? MENÚ
+					// =======================
+					if (modo == 0)
+					{
+						if (buffer[0] == '1')
+						{
+							modo = 1;
+							writeString("Modo OJOS\r\n");
+							writeString("Use: I1:[angulo], D1:[angulo], I2:[angulo], D2:[angulo]\r\n");
+						}
+						else if (buffer[0] == '2')
+						{
+							modo = 2;
+							writeString("Modo PARPADOS\r\n");
+							writeString("Use: M1:[angulo], M2:[angulo]\r\n");
+						}
+						else if (buffer[0] == '3')
+						{
+							writeString("Leyendo EEPROM...\r\n");
+						}
+						else
+						{
+							writeString("Opcion invalida\r\n");
+						}
+
+						printMenu();
+					}
+
+					// =======================
+					// MODO 1 ? OJOS
+					// =======================
+					else if (modo == 1)
+					{
+						if (strncmp(buffer, "I1:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Ojo iz base -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (strncmp(buffer, "D1:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Ojo der base -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (strncmp(buffer, "I2:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Pupila iz -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (strncmp(buffer, "D2:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Pupila der -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (buffer[0] == 'x') // salir
+						{
+							modo = 0;
+							printMenu();
+						}
+						else
+						{
+							writeString("Comando invalido\r\n");
+						}
+					}
+
+					// =======================
+					// MODO 2 ? PARPADOS
+					// =======================
+					else if (modo == 2)
+					{
+						if (strncmp(buffer, "M1:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Parpado iz -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (strncmp(buffer, "M2:", 3) == 0)
+						{
+							int ang = atoi(&buffer[3]);
+							writeString("Parpado der -> ");
+							itoa(ang, buffer, 10);
+							writeString(buffer);
+							writeString("\r\n");
+						}
+						else if (buffer[0] == 'x')
+						{
+							modo = 0;
+							printMenu();
+						}
+						else
+						{
+							writeString("Comando invalido\r\n");
+						}
+					}
+
+					// reiniciar buffer
+					idx = 0;
+				}
+				else
+				{
+					// guardar en buffer
+					if (idx < sizeof(buffer) - 1)
+					{
+						buffer[idx++] = c;
+					}
+				}
+			}

@@ -135,6 +135,12 @@
     <Compile Include="PWM1F\PWM1.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PWM2F\PWM2.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PWM2F\PWM2.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="PWMm\PWM.c">
       <SubType>compile</SubType>
     </Compile>
@@ -156,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ADC" />
+    <Folder Include="PWM2F" />
     <Folder Include="Servo" />
     <Folder Include="UART" />
     <Folder Include="PWM1F" />

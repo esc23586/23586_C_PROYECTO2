@@ -11,12 +11,10 @@
 
 #include <stdint.h>
 
-// Inicializa PWM por software
-void PWM3_Init(void);
 
-// Cambia duty cycle (0–255)
-void PWM3_SetDuty(uint8_t duty);
-
+void PWM0_Init(void);
+void PWM0_SetDuty1(uint8_t ticks);
+void PWM0_SetDuty2(uint8_t ticks);
 
 
 #endif /* PWM_H_ */

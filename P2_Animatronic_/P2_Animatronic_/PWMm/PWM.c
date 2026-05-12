@@ -8,15 +8,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-volatile uint8_t servo1_ticks = 15; // PD6
-volatile uint8_t servo2_ticks = 15; // PD5
+volatile uint8_t servo1A_ticks = 15; // PD6
+volatile uint8_t servo1B_ticks = 15; // PD5
 
-volatile uint8_t counter = 0;
+volatile uint8_t counter0 = 0;
 
 void PWM0_Init(void)
 {
 	// Configurar PD6 y PD5 como salida
-	DDRD |= (1 << PD6) | (1 << PD5);
+	DDRD |= (1 << DDD6)| (1 << DDD5);
 
 	// Timer0 en modo normal
 	TCCR0A = 0;
@@ -24,44 +24,44 @@ void PWM0_Init(void)
 
 	TIMSK0 = (1 << TOIE0); // habilitar overflow
 
-	sei();
+	//sei();
 }
 
 ISR(TIMER0_OVF_vect)
 {
-	counter++;
+	counter0++;
 
 	// Inicio del pulso
-	if (counter == 1)
+	if (counter0 == 1)
 	{
-		PORTD |= (1 << PD6) | (1 << PD5);
+		PORTD |= (1 << PORTD6) | (1 << PORTD5);
 	}
 
 	// Apagar servo 1 (PD6)
-	if (counter == servo1_ticks)
+	if (counter0 == servo1A_ticks)
 	{
-		PORTD &= ~(1 << PD6);
+		PORTD &= ~(1 << PORTD6);
 	}
 
 	// Apagar servo 2 (PD5)
-	if (counter == servo2_ticks)
+	if (counter0 == servo1B_ticks)
 	{
-		PORTD &= ~(1 << PD5);
+		PORTD &= ~(1 << PORTD5);
 	}
 
 	// Frame ~20ms
-	if (counter >= 156)
+	if (counter0 >= 156)
 	{
-		counter = 0;
+		counter0 = 0;
 	}
 }
 
 void PWM0_SetDuty1(uint8_t ticks)
 {
-	servo1_ticks = ticks;
+	servo1A_ticks = ticks;
 }
 
 void PWM0_SetDuty2(uint8_t ticks)
 {
-	servo2_ticks = ticks;
+	servo1B_ticks = ticks;
 }

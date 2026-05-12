@@ -13,7 +13,7 @@
 void PWM1_Init(void)
 {
 	// PB1 (OC1A) y PB2 (OC1B) como salida
-	DDRB |= (1 << PB1) | (1 << PB2);
+	DDRB |= (1 << PORTB1) | (1 << PORTB2);
 
 	// Fast PWM, TOP = ICR1
 	TCCR1A = (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11);//activa salida PWM en OC1A
@@ -23,6 +23,14 @@ void PWM1_Init(void)
 	ICR1 = 39999;
 
 	// Centro inicial Para ambos
+	/*
+	Nota
+	Basicamente inician en 45 graados. Puedo variar esto según convenga una vez ensamblado. 
+	Para que quede en el grado necesario para que se vea como mi 0. 
+	
+	3000 es 45 y 4000 es 180, 2000 es 0 
+	*/
+	
 	OCR1A = 3000;
 	OCR1B = 3000;
 }
@@ -31,7 +39,8 @@ void PWM1_SetDuty(uint16_t duty)
 	OCR1A = duty;//mov, servo
 }
 
-void PWM2_SetDuty(uint16_t duty)
+
+void PWM1_SetDuty2(uint16_t duty)
 {
 	OCR1B = duty;
 }

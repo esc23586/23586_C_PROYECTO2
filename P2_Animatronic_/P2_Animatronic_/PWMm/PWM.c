@@ -3,6 +3,9 @@
  *
  * Created: 28/04/2026 12:47:30
  *  Author: grett
+ 
+ Es el pwm para la parte de: I2:Pupila izquierda & D2:Pupila derecha.
+
  */ 
 #include "PWM.h"
 #include <avr/io.h>

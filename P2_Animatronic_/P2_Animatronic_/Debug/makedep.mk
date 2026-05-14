@@ -12,6 +12,8 @@ PWM2F\PWM2.c
 
 PWMm\PWM.c
 
+ServoUtils\ServoUtils.c
+
 Servo\servo.c
 
 UART\uart.c

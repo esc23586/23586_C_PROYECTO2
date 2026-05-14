@@ -3,6 +3,8 @@
  *
  * Created: 5/05/2026 13:09:51
  *  Author: grett
+ 
+ PWM para los pines asociados al timer 2--pd3, pb11, M1:Párpado 1 &  M2:Párpado 2
  */ 
 #include "PWM2.h"
 #include <avr/io.h>

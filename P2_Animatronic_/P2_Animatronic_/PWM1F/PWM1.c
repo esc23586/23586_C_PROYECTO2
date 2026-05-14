@@ -8,7 +8,11 @@
 #include "PWM1.h"
 #include <avr/io.h>
 
-
+/*
+En este caso este pwm se eligió para el movimiento de ambas bases de los ojos. 
+I1:Ojo izquierdo base
+D1:Ojo derecho base
+*/
 
 void PWM1_Init(void)
 {

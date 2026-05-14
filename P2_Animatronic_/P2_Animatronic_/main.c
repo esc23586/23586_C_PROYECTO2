@@ -40,28 +40,18 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 #include <string.h>
 #include "ADC/adc.h" //para importar mi adc
 
-
+// Para los pwm
 #include "PWMm/PWM.h" //la del timer cero
 #include "PWM1F/PWM1.h"// la que tiene al timer1
 #include "PWM2F/PWM2.h"// la que ocupa el timer 2
 
-/****************************************/
-// Function prototypes
+//other essential
+#include "UART/UART.h" //Menu logic, and comparisons :3
 
-void intUART(void);
-void writeChar(char c);
-void writeString(char *string);
-
-void printMenu(void);
+#include "ServoUtils/ServoUtils.h"// the functions to convert number in angles
 
 /****************************************/
-// Main Function
-//globales ;
-volatile uint8_t modo = 0;//MODO Predeterminado
-//Aqui puede ir la parte de la cara y sus 
-char buffer[20];        // buffer de entrada
-char out[10];           // buffer para imprimir números
-volatile uint8_t idx = 0;
+
 
 
 // Main Function
@@ -74,98 +64,86 @@ int main(void)
 	PORTB &= ~((1<<PORTB5) | (1<<PORTB4));
 	
 	//inicializaciónes 
-	intUART();//Comunicación UART
-	/*
-	PWM1_Init(); // Servo 1 y 2 (Timer1)
-	PWM3_Init();// Led manual con TImer 0
-	*/
-	
-	
+	UART_Init();//Comunicación UART
 	PWM0_Init();//Control de Timer 0
 	PWM1_Init();//Control de Timer 1
 	PWM2_Init();//Control de Timer 2
 	ADC_Init();//ADC
 	
-	
-	
 	sei();// BUENAS CONSTUMBRES
 
 	printMenu();
+	
+	//================ VARIABLES ADC =================//
+
+	uint16_t adc0;
+	uint16_t adc1;
+	uint16_t adc2;
+	uint16_t adc3;
+	uint16_t adc4;
+	uint16_t adc5;
+
+	uint8_t ang0;
+	uint8_t ang1;
+	uint8_t ang2;
+	uint8_t ang3;
+	uint8_t ang4;
+	uint8_t ang5;
+	//***************************************************//
+	
+	//loop 
 	while (1)
+	{
+		//================ UART =================//
+
+		if (commandReady)
 		{
+			commandReady = 0;
+
+			processCommand();
 		}
+
+		//================ CONTROL ADC =================//
+
+		if (modo == 3)
+		{
+			//========= LEER ADC =========//
+
+			adc0 = ADC_Read(2); // PC2
+			adc1 = ADC_Read(3); // PC3
+			adc2 = ADC_Read(4); // PC4
+			adc3 = ADC_Read(5); // PC5
+			adc4 = ADC_Read(6); // A6
+			adc5 = ADC_Read(7); // A7
+
+			//========= ADC -> ANGULO =========//
+
+			ang0 = ADCToAngle(adc0);
+			ang1 = ADCToAngle(adc1);
+			ang2 = ADCToAngle(adc2);
+			ang3 = ADCToAngle(adc3);
+			ang4 = ADCToAngle(adc4);
+			ang5 = ADCToAngle(adc5);
+
+			//========= MOVER SERVOS =========//
+
+			// Ojos base
+			PWM1_SetDuty(ServoToOCR(ang0));
+			PWM1_SetDuty2(ServoToOCR(ang1));
+
+			// Pupilas
+			PWM0_SetDuty1(ServoToTicks(ang2));
+			PWM0_SetDuty2(ServoToTicks(ang3));
+
+			// Parpados
+			PWM2_SetDuty1(ServoToTicks(ang4));
+			PWM2_SetDuty2(ServoToTicks(ang5));
+		}
+	}
 }
 		// las subrutinas de la rutina
 		
 		//la interrupción debe ser unicamente para levantar banderas. 
-
-/*****************************************************************************/
-// NON-Interrupt subroutines
-
-//para el menu
-void printMenu(void)
-{
-	writeString("=========== Menu Animatrónico=============\r\n");
-	writeString("1: Mover Ojos \r\n");
-	writeString("2: Mover Parpados\r\n");
-	writeString("3: Mostrar Ultima posición guradada EEPROM\r\n");
-	writeString("==============================\r\n");
-	writeString("\r\n");
-	writeString("NOTA: Al final de cada comando colocar ; \r\n");
-	writeString("\r\n");
-	writeString("\r\n");
-	
-	PORTB &= ~(1<<PORTB5); // apagar LED
-	//Apagar todos los demás leds de modo too
-	
-}
-
-//************ Modulo  para Comunicación ***************//
-// Inicialización UART
-void intUART(void)
-{
-	// RX (PD0) entrada
-	DDRD &= ~(1<<DDD0);
-
-	// TX (PD1) salida
-	DDRD |= (1<<DDD1);
-
-	UCSR0A = 0;
-
-	
-	// Habilitar RX, TX e interrupción RX
-	UCSR0B = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
-	//si solo habilito la de tx, solo se manda, si habilito el rx me permite recibir el mensaje
-
-
-	// 8 bits de datos
-	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
-
-	// Baudrate 9600 parap 16MHz
-	UBRR0 = 103;
-}
-
-
-// *********** Modulo de escritura en TERMINAL  **********//
-// Enviar un carácter
-void writeChar(char c)
-{
-	while (!(UCSR0A & (1<<UDRE0))); // Esperar buffer vacío
-	UDR0 = c;
-}
-
-// Enviar string
-
-void writeString(char *string)
-{
-	for (uint8_t i = 0; string[i] != '\0'; i++)
-	{
-		writeChar(string[i]);
-	}
-}
-
-
-
 
 
 /**********************************************************************/
@@ -191,354 +169,6 @@ void writeString(char *string)
 			M2:40
 			x ? salir
 	*/
-	
 	/********************************/
-	//Funciones auxiliares
-uint16_t ServoToOCR(uint8_t ang);
-uint8_t ServoToTicks(uint8_t ang);
-
-uint16_t ServoToOCR(uint8_t ang)
-{
-	return 2000 + ((uint32_t)ang * 2000) / 180;
-}
-
-uint8_t ServoToTicks(uint8_t ang)
-{
-	return 8 + ((uint16_t)ang * 8) / 180;
-}
-
-/*
-//Rutrina de interrupción 
-			ISR(USART_RX_vect)
-			{
-				char c = UDR0;
-				writeChar(c);// eco
-
-
-				// ENTER: Si se le da enter al final entoncecs continua y procesa mi comando
-				if (c == '\r' || c == '\n')
-				{
-					buffer[idx] = '\0';// cerrar string
-					writeString("\r\n");
-					
-					// =======================
-					// MODO 0 ? MENÚ
-					// =======================
-					if (modo == 0)
-					{
-						if (buffer[0] == '1')
-						{
-							
-							modo = 1;
-							writeString("Modo OJOS\r\n");
-							writeString("Use: I1:[angulo], D1:[angulo], I2:[angulo], D2:[angulo]\r\n");
-							writeString("Con x puede salir\r\n");
-							
-						}
-						else if (buffer[0] == '2')
-						{
-							modo = 2;
-							writeString("Modo PARPADOS\r\n");
-							writeString("Use: M1:[angulo], M2:[angulo]\r\n");
-							writeString("Con x puede salir\r\n");
-						}
-						else if (buffer[0] == '3')
-						{
-							writeString("Leyendo EEPROM...\r\n");
-						}
-						else
-						{
-							writeString("Opcion invalida\r\n");
-						}
-						
-						
-						
-					}
-
-					// =======================
-					// MODO 1 ? OJOS
-					// =======================
-					else if (modo == 1)
-					{
-						if (strncmp(buffer, "I1:", 3) == 0)
-						{
-							int ang = atoi(&buffer[3]);
-							PWM1_SetDuty(ServoToOCR(ang));
-
-							writeString("I1 -");
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-							
-						}
-						else if (strncmp(buffer, "D1:", 3) == 0)
-						{
-							int ang = atoi(&buffer[3]);
-							PWM1_SetDuty2(ServoToOCR(ang));
-							writeString("Ojo der base -> ");
-
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-						}
-						else if (strncmp(buffer, "I2:", 3) == 0)
-						{
-							int ang = atoi(&buffer[3]);
-							PWM0_SetDuty1(ServoToTicks(ang));
-							writeString("Pupila iz -> ");
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-						}
-						else if (strncmp(buffer, "D2:", 3) == 0)
-						{
-							uint8_t ang = atoi(&buffer[3]);
-							PWM0_SetDuty2(ServoToTicks(ang));
-
-							writeString("D2 -> ");
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-							
-						}
-						else if (buffer[0] == 'x') // salir
-						{
-							modo = 0;
-							printMenu();
-						}
-						else
-						{
-							writeString("Comando invalido\r\n");
-						}
-					}
-
-					// =======================
-					// MODO 2 ? PARPADOS
-					// =======================
-					else if (modo == 2)
-					{
-						if (strncmp(buffer, "M1:", 3) == 0)
-						{
-							uint8_t ang = atoi(&buffer[3]);
-							PWM2_SetDuty1(ServoToTicks(ang));
-
-							writeString("M1 -> ");
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-						}
-						else if (strncmp(buffer, "M2:", 3) == 0)
-						{
-							uint8_t ang = atoi(&buffer[3]);
-							PWM2_SetDuty2(ServoToTicks(ang));
-
-							writeString("M2 -> ");
-							itoa(ang, out, 10);
-							writeString(out);
-							writeString("\r\n");
-						}
-						else if (buffer[0] == 'x')
-						{
-							modo = 0;
-							printMenu();
-						}
-						else
-						{
-							writeString("Comando invalido\r\n");
-						}
-					}
-
-					// reiniciar buffer
-					idx = 0;
-				}
-				else
-					{
-						// guardar en buffer
-						if (idx < sizeof(buffer)-1)
-						{
-							buffer[idx++] = c;
-						}
-					}
-				}
-				
-			
-*/
-
-ISR(USART_RX_vect)
-{
-	char c = UDR0;
-
-	// ECO
-	writeChar(c);
-
-	// ENTER - se colocó el caracter ; como delimitador, en véz de enter, pq eld ata visualizer no lee el enter. 
 	
-	if (c == ';')
-	{
-		// ignorar ENTER vacío
-		if (idx == 0)
-		{
-			return;
-		}
 
-		buffer[idx] = '\0';
-
-		writeString("\r\n");
-
-		// =========================
-		// MODO 0
-		// =========================
-		if (modo == 0)
-		{
-			if (strcmp(buffer, "1") == 0)
-			{
-				modo = 1;
-
-				writeString("Modo OJOS\r\n");
-				writeString("Use: I1:90\r\n");
-				writeString("Use: D1:90\r\n");
-				writeString("Use: I2:90\r\n");
-				writeString("Use: D2:90\r\n");
-				writeString("x; para salir\r\n");
-			}
-			else if (strcmp(buffer, "2") == 0)
-			{
-				modo = 2;
-
-				writeString("Modo PARPADOS\r\n");
-				writeString("Use: M1:90\r\n");
-				writeString("Use: M2:90\r\n");
-				writeString("x; para salir\r\n");
-			}
-			else if (strcmp(buffer, "3") == 0)
-			{
-				writeString("Leyendo EEPROM...\r\n");
-			}
-			else
-			{
-				writeString("Opcion invalida\r\n");
-				printMenu();
-			}
-		}
-
-		// =========================
-		// MODO OJOS
-		// =========================
-		else if (modo == 1)
-		{
-			if (strncmp(buffer, "I1:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM1_SetDuty(ServoToOCR(ang));
-
-				writeString("I1 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strncmp(buffer, "D1:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM1_SetDuty2(ServoToOCR(ang));
-
-				writeString("D1 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strncmp(buffer, "I2:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM0_SetDuty1(ServoToTicks(ang));
-
-				writeString("I2 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strncmp(buffer, "D2:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM0_SetDuty2(ServoToTicks(ang));
-
-				writeString("D2 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strcmp(buffer, "x") == 0)
-			{
-				modo = 0;
-
-				printMenu();
-			}
-
-			else
-			{
-				writeString("Comando invalido\r\n");
-			}
-		}
-
-		// =========================
-		// MODO PARPADOS
-		// =========================
-		else if (modo == 2)
-		{
-			if (strncmp(buffer, "M1:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM2_SetDuty1(ServoToTicks(ang));
-
-				writeString("M1 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strncmp(buffer, "M2:", 3) == 0)
-			{
-				uint8_t ang = atoi(&buffer[3]);
-
-				PWM2_SetDuty2(ServoToTicks(ang));
-
-				writeString("M2 -> ");
-				itoa(ang, out, 10);
-				writeString(out);
-				writeString("\r\n");
-			}
-
-			else if (strcmp(buffer, "x") == 0)
-			{
-				modo = 0;
-
-				printMenu();
-			}
-
-			else
-			{
-				writeString("Comando invalido\r\n");
-			}
-		}
-
-		// LIMPIAR BUFFER
-		idx = 0;
-	}
-
-	// GUARDAR CARACTER
-	else
-	{
-		if (idx < sizeof(buffer) - 1)
-		{
-			buffer[idx++] = c;
-		}
-	}
-}

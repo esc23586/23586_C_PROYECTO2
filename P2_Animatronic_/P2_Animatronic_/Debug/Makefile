@@ -34,6 +34,7 @@ LINKER_SCRIPT_DEP:=
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
 ../ADC \
+../ServoUtils \
 ../PWM2F \
 ../Servo \
 ../UART \
@@ -48,6 +49,7 @@ C_SRCS +=  \
 ../PWM1F/PWM1.c \
 ../PWM2F/PWM2.c \
 ../PWMm/PWM.c \
+../ServoUtils/ServoUtils.c \
 ../Servo/servo.c \
 ../UART/uart.c
 
@@ -64,6 +66,7 @@ main.o \
 PWM1F/PWM1.o \
 PWM2F/PWM2.o \
 PWMm/PWM.o \
+ServoUtils/ServoUtils.o \
 Servo/servo.o \
 UART/uart.o
 
@@ -73,6 +76,7 @@ main.o \
 PWM1F/PWM1.o \
 PWM2F/PWM2.o \
 PWMm/PWM.o \
+ServoUtils/ServoUtils.o \
 Servo/servo.o \
 UART/uart.o
 
@@ -82,6 +86,7 @@ main.d \
 PWM1F/PWM1.d \
 PWM2F/PWM2.d \
 PWMm/PWM.d \
+ServoUtils/ServoUtils.d \
 Servo/servo.d \
 UART/uart.d
 
@@ -91,6 +96,7 @@ main.d \
 PWM1F/PWM1.d \
 PWM2F/PWM2.d \
 PWMm/PWM.d \
+ServoUtils/ServoUtils.d \
 Servo/servo.d \
 UART/uart.d
 
@@ -137,6 +143,13 @@ PWM2F/PWM2.o: ../PWM2F/PWM2.c
 	
 
 PWMm/PWM.o: ../PWMm/PWM.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+ServoUtils/ServoUtils.o: ../ServoUtils/ServoUtils.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega328p -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega328p" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

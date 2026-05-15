@@ -9,7 +9,7 @@
 
 void ADC_Init(void)
 {
-	// Referencia AVcc (5V)
+	// Referencia AVcc (5V) para mi nano
 	ADMUX = (1 << REFS0);
 
 	// Habilitar ADC + prescaler 128 (~125 kHz)

@@ -4,7 +4,7 @@
  * Created: 28/04/2026 14:25:30
  *  Author: grett
  */ 
-//========================== UART.c ==========================//
+//==========================librería ==========================//
 
 #define F_CPU 16000000UL
 
@@ -32,7 +32,15 @@ volatile uint8_t idx = 0;
 char buffer[20];
 char out[10];
 
-//================ Inicialización UART ================//
+//modificación para que funcione los angulos 
+volatile uint8_t servoSeleccionado = 0;
+//Basicamente cuando sea 0- selección de servos y cuando es dif de 0 se qeuda esperando el angulo
+
+/****************************************************************************************************/
+//Funciones descritas
+
+
+//============ Inicialización UART =============//
 
 void UART_Init(void)
 {
@@ -57,16 +65,16 @@ void UART_Init(void)
 	UBRR0 = 103;
 }
 
-//================ UART Básico ================//
+//========== UART funcoines básicas de comunicación ==========//
 
-void writeChar(char c)
+void writeChar(char c)//para caracters
 {
 	while (!(UCSR0A & (1 << UDRE0)));
 
 	UDR0 = c;
 }
 
-void writeString(char *string)
+void writeString(char *string)//para mandar mis cadenas de texto 
 {
 	uint8_t i = 0;
 
@@ -77,7 +85,7 @@ void writeString(char *string)
 	}
 }
 
-//================ Menú ================//
+//================ Menú =================//
 
 void printMenu(void)
 {
@@ -92,6 +100,7 @@ void printMenu(void)
 }
 
 //================ Conversión Servos ================//
+//Esta parte se movió a servo Utilitis. pues se necestiaba en el main también.
 /*
 
 uint16_t ServoToOCR(uint8_t ang)
@@ -105,7 +114,7 @@ uint8_t ServoToTicks(uint8_t ang)
 }
 */
 
-//================ Procesamiento Comandos ================//
+//================ Procesamiento Comandos: Casos del menú ========================//
 
 void processCommand(void)
 {
@@ -158,12 +167,17 @@ void processCommand(void)
 	}
 
 	//================ MODO OJOS ================//
-
+/*
 	else if (modo == 1)
 	{
 		if (strncmp(buffer, "I1:", 3) == 0)
 		{
 			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
 			PWM1_SetDuty(ServoToOCR(ang));
 
@@ -177,7 +191,13 @@ void processCommand(void)
 
 		else if (strncmp(buffer, "D1:", 3) == 0)
 		{
+			
 			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
 			PWM1_SetDuty2(ServoToOCR(ang));
 
@@ -193,6 +213,11 @@ void processCommand(void)
 		{
 			uint8_t ang = atoi(&buffer[3]);
 
+			if (ang > 180)
+			{
+				ang = 180;
+			}
+
 			PWM0_SetDuty1(ServoToTicks(ang));
 
 			writeString("I2 -> ");
@@ -205,7 +230,13 @@ void processCommand(void)
 
 		else if (strncmp(buffer, "D2:", 3) == 0)
 		{
+			
 			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
 			PWM0_SetDuty2(ServoToTicks(ang));
 
@@ -229,14 +260,125 @@ void processCommand(void)
 			writeString("Comando invalido\r\n");
 		}
 	}
+*/
+//================ MODO OJOS ================//
 
+else if (modo == 1)
+{
+	//========= NO HAY SERVO SELECCIONADO =========//
+
+	if (servoSeleccionado == 0)
+	{
+		if (strcmp(buffer, "1") == 0)
+		{
+			servoSeleccionado = 1;
+
+			writeString("\r\nServo I1 seleccionado\r\n");
+			writeString("Ingrese angulo 0-180;\r\n");
+		}
+
+		else if (strcmp(buffer, "2") == 0)
+		{
+			servoSeleccionado = 2;
+
+			writeString("\r\nServo D1 seleccionado\r\n");
+			writeString("Ingrese angulo 0-180;\r\n");
+		}
+
+		else if (strcmp(buffer, "3") == 0)
+		{
+			servoSeleccionado = 3;
+
+			writeString("\r\nServo I2 seleccionado\r\n");
+			writeString("Ingrese angulo 0-180;\r\n");
+		}
+
+		else if (strcmp(buffer, "4") == 0)
+		{
+			servoSeleccionado = 4;
+
+			writeString("\r\nServo D2 seleccionado\r\n");
+			writeString("Ingrese angulo 0-180;\r\n");
+		}
+
+		else if (strcmp(buffer, "x") == 0)
+		{
+			modo = 0;
+
+			printMenu();
+		}
+
+		else
+		{
+			writeString("Servo invalido\r\n");
+		}
+	}
+
+	//========= YA HAY SERVO SELECCIONADO =========//
+
+	else
+	{
+		uint8_t ang = atoi(buffer);
+
+		if (ang > 180)
+		{
+			ang = 180;
+		}
+
+		switch (servoSeleccionado)
+		{
+			case 1:
+			PWM1_SetDuty(ServoToOCR(ang));
+			writeString("I1 -> ");
+			break;
+
+			case 2:
+			PWM1_SetDuty2(ServoToOCR(ang));
+			writeString("D1 -> ");
+			break;
+
+			case 3:
+			PWM0_SetDuty1(ServoToTicks(ang));
+			writeString("I2 -> ");
+			break;
+
+			case 4:
+			PWM0_SetDuty2(ServoToTicks(ang));
+			writeString("D2 -> ");
+			break;
+		}
+
+		itoa(ang, out, 10);
+
+		writeString(out);
+		writeString("\r\n");
+
+		// RESETEAR selección
+		servoSeleccionado = 0;
+
+		writeString("\r\nSeleccione otro servo:\r\n");
+		writeString("1 -> I1\r\n");
+		writeString("2 -> D1\r\n");
+		writeString("3 -> I2\r\n");
+		writeString("4 -> D2\r\n");
+		writeString("x -> salir\r\n");
+		
+		
+	}
+}
 	//================ MODO PARPADOS ================//
 
 	else if (modo == 2)
 	{
 		if (strncmp(buffer, "M1:", 3) == 0)
 		{
+			
 			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
 			PWM2_SetDuty1(ServoToTicks(ang));
 
@@ -250,7 +392,13 @@ void processCommand(void)
 
 		else if (strncmp(buffer, "M2:", 3) == 0)
 		{
+			
 			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
 			PWM2_SetDuty2(ServoToTicks(ang));
 
@@ -287,8 +435,11 @@ void processCommand(void)
 		}
 	}
 }
+//****************************************************************************************************************//
+//Rutina de interrupción 
 
-//================ ISR UART ===================================================================================//
+
+//======================== ISR UART ==========================//
 
 ISR(USART_RX_vect)
 {

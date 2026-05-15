@@ -13,8 +13,8 @@
 
 
 void PWM0_Init(void);
-void PWM0_SetDuty1(uint8_t ticks);
-void PWM0_SetDuty2(uint8_t ticks);
 
+void PWM0_SetDuty1(uint16_t ticks);
+void PWM0_SetDuty2(uint16_t ticks);
 
 #endif /* PWM_H_ */

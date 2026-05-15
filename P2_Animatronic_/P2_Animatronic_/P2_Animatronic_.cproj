@@ -153,12 +153,6 @@
     <Compile Include="ServoUtils\ServoUtils.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Servo\servo.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Servo\servo.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="UART\uart.c">
       <SubType>compile</SubType>
     </Compile>
@@ -170,7 +164,6 @@
     <Folder Include="ADC" />
     <Folder Include="ServoUtils" />
     <Folder Include="PWM2F" />
-    <Folder Include="Servo" />
     <Folder Include="UART" />
     <Folder Include="PWM1F" />
     <Folder Include="PWMm" />

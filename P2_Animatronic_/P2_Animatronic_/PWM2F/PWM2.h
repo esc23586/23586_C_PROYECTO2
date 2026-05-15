@@ -12,7 +12,8 @@
 #include <stdint.h>
 
 void PWM2_Init(void);
-void PWM2_SetDuty1(uint8_t ticks);
-void PWM2_SetDuty2(uint8_t ticks);
+
+void PWM2_SetDuty1(uint16_t ticks);
+void PWM2_SetDuty2(uint16_t ticks);
 
 #endif /* PWM2_H_ */

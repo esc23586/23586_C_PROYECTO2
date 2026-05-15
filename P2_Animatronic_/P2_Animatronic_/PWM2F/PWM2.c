@@ -6,69 +6,82 @@
  
  PWM para los pines asociados al timer 2--pd3, pb11, M1:Párpado 1 &  M2:Párpado 2
  */ 
+
 #include "PWM2.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-volatile uint8_t servo2A_ticks = 15; // PD3
-volatile uint8_t servo2B_ticks = 15; // PB3
+volatile uint16_t servo2A_ticks = 75; // PD3
+volatile uint16_t servo2B_ticks = 75; // PB3
 
-volatile uint8_t counter2 = 0;
+volatile uint16_t counter2 = 0;
 
 void PWM2_Init(void)
 {
-	// Configurar PD3 y PB3 como salida
-	
-	DDRD |= (1 << DDD3);
-	DDRB |= (1 << PORTB3);
-	
-	
+    // PD3 y PB3 salida
+    DDRD |= (1 << DDD3);
+    DDRB |= (1 << DDB3);
 
-	// Timer2 normal mode
-	TCCR2A = 0;
-	TCCR2B = (1 << CS22); // prescaler 64
+    // CTC mode
+    TCCR2A = (1 << WGM21);
 
-	TIMSK2 = (1 << TOIE2); // habilitar overflow
+    // prescaler 8
+    TCCR2B = (1 << CS21);
 
-	//sei();
+    /*
+    16MHz / 8 = 2MHz
+
+    2MHz = 0.5us por tick
+
+    OCR2A = 39
+
+    40 ticks = 20us
+    */
+
+    OCR2A = 39;
+
+    // habilitar compare match
+    TIMSK2 = (1 << OCIE2A);
 }
 
-ISR(TIMER2_OVF_vect)
+
+ISR(TIMER2_COMPA_vect)
 {
-	counter2++;
+    counter2++;
 
-	// Inicio del pulso (ambos en alto)
-	if (counter2 == 1)
-	{
-		PORTD |= (1 << PORTD3);
-		PORTB |= (1 << PORTB3);
-	}
+    // inicio frame
+    if (counter2 == 1)
+    {
+        PORTD |= (1 << PORTD3);
+        PORTB |= (1 << PORTB3);
+    }
 
-	// Apagar servo 1 (PD3)
-	if (counter2 == servo2A_ticks)
-	{
-		PORTD &= ~(1 << PORTD3);
-	}
+    // apagar servo A
+    if (counter2 == servo2A_ticks)
+    {
+        PORTD &= ~(1 << PORTD3);
+    }
 
-	// Apagar servo 2 (PB3)
-	if (counter2 == servo2B_ticks)
-	{
-		PORTB &= ~(1 << PORTB3);
-	}
+    // apagar servo B
+    if (counter2 == servo2B_ticks)
+    {
+        PORTB &= ~(1 << PORTB3);
+    }
 
-	// Reinicio del frame (~20ms)
-	if (counter2 >= 156)
-	{
-		counter2 = 0;
-	}
+    // 20ms frame
+    if (counter2 >= 1000)
+    {
+        counter2 = 0;
+    }
 }
 
-void PWM2_SetDuty1(uint8_t ticks)
+void PWM2_SetDuty1(uint16_t ticks)
 {
-	servo2A_ticks = ticks;
+    servo2A_ticks = ticks;
 }
 
-void PWM2_SetDuty2(uint8_t ticks)
+void PWM2_SetDuty2(uint16_t ticks)
 {
-	servo2B_ticks = ticks;
+    servo2B_ticks = ticks;
 }
+

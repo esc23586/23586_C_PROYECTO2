@@ -126,6 +126,12 @@
     <Compile Include="ADC\adc.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="EEPROMSave\eepromsave.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="EEPROMSave\eepromsave.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
@@ -147,6 +153,12 @@
     <Compile Include="PWMm\PWM.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ServoMemory\Servomemory.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ServoMemory\Servomemory.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ServoUtils\ServoUtils.c">
       <SubType>compile</SubType>
     </Compile>
@@ -162,6 +174,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ADC" />
+    <Folder Include="EEPROMSave" />
+    <Folder Include="ServoMemory" />
     <Folder Include="ServoUtils" />
     <Folder Include="PWM2F" />
     <Folder Include="UART" />

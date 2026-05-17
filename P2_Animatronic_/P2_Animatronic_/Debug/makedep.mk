@@ -4,6 +4,8 @@
 
 ADC\adc.c
 
+EEPROMSave\eepromsave.c
+
 main.c
 
 PWM1F\PWM1.c
@@ -11,6 +13,8 @@ PWM1F\PWM1.c
 PWM2F\PWM2.c
 
 PWMm\PWM.c
+
+ServoMemory\Servomemory.c
 
 ServoUtils\ServoUtils.c
 

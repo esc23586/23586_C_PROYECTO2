@@ -22,6 +22,9 @@
 #include "../PWM2F/PWM2.h"
 //meterme a una carpeta desde otra carpeta ..
 
+//PARTE DE CONEXIÓN CON EEPROM 
+#include "../ServoMemory/ServoMemory.h"//libreria de apoyo así como la de servo Utilitis
+
 //================ Variables Globales ================//
 
 volatile uint8_t modo = 0;
@@ -147,6 +150,13 @@ void processCommand(void)
 		else if (strcmp(buffer, "3") == 0)
 		{
 			writeString("Leyendo EEPROM...\r\n");
+			
+			writeString("Cargando posiciones EEPROM...\r\n");//nuevo con la adición a eeprom 
+			ServoMemory_LoadAndApply();//mueve físicamente el animatrónico.
+			ServoMemory_PrintEEPROM();//muestra por UART los ángulos cargados, en listita
+			
+			writeString("Posiciones aplicadas\r\n");// basicmaente interacción con la interfás del susuario. 
+			//En esta versión del código se hará un a rpueba para sacar los valores que se guardaron al presiona pb5
 		}
 		
 		else if (strcmp(buffer, "4") == 0)
@@ -166,275 +176,184 @@ void processCommand(void)
 		}
 	}
 
+//////////////////////////////////////////////////////////Logica para navegar en cada una de las opciones dichas anteirormente
+//para la opcio n1 y 2: 
+
+
 	//================ MODO OJOS ================//
-/*
+
 	else if (modo == 1)
 	{
-		if (strncmp(buffer, "I1:", 3) == 0)
-		{
-			uint8_t ang = atoi(&buffer[3]);
+		//========= NO HAY SERVO SELECCIONADO =========//
 
-			if (ang > 180)
+		if (servoSeleccionado == 0)
+		{
+			if (strcmp(buffer, "1") == 0)
 			{
-				ang = 180;
+				servoSeleccionado = 1;
+
+				writeString("\r\nServo I1 seleccionado\r\n");
+				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			PWM1_SetDuty(ServoToOCR(ang));
-
-			writeString("I1 -> ");
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-		}
-
-		else if (strncmp(buffer, "D1:", 3) == 0)
-		{
-			
-			uint8_t ang = atoi(&buffer[3]);
-
-			if (ang > 180)
+			else if (strcmp(buffer, "2") == 0)
 			{
-				ang = 180;
+				servoSeleccionado = 2;
+
+				writeString("\r\nServo D1 seleccionado\r\n");
+				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			PWM1_SetDuty2(ServoToOCR(ang));
-
-			writeString("D1 -> ");
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-		}
-
-		else if (strncmp(buffer, "I2:", 3) == 0)
-		{
-			uint8_t ang = atoi(&buffer[3]);
-
-			if (ang > 180)
+			else if (strcmp(buffer, "3") == 0)
 			{
-				ang = 180;
+				servoSeleccionado = 3;
+
+				writeString("\r\nServo I2 seleccionado\r\n");
+				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			PWM0_SetDuty1(ServoToTicks(ang));
-
-			writeString("I2 -> ");
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-		}
-
-		else if (strncmp(buffer, "D2:", 3) == 0)
-		{
-			
-			uint8_t ang = atoi(&buffer[3]);
-
-			if (ang > 180)
+			else if (strcmp(buffer, "4") == 0)
 			{
-				ang = 180;
+				servoSeleccionado = 4;
+
+				writeString("\r\nServo D2 seleccionado\r\n");
+				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			PWM0_SetDuty2(ServoToTicks(ang));
+			else if (strcmp(buffer, "x") == 0)
+			{
+				modo = 0;
 
-			writeString("D2 -> ");
+				printMenu();
+			}
 
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
+			else
+			{
+				writeString("Servo invalido\r\n");
+			}
 		}
 
-		else if (strcmp(buffer, "x") == 0)
-		{
-			modo = 0;
-
-			printMenu();
-		}
+		//========= YA HAY SERVO SELECCIONADO =========//
 
 		else
 		{
-			writeString("Comando invalido\r\n");
-		}
-	}
-*/
-//================ MODO OJOS ================//
+			uint8_t ang = atoi(buffer);
 
-else if (modo == 1)
-{
-	//========= NO HAY SERVO SELECCIONADO =========//
+			if (ang > 180)
+			{
+				ang = 180;
+			}
 
-	if (servoSeleccionado == 0)
-	{
-		if (strcmp(buffer, "1") == 0)
-		{
-			servoSeleccionado = 1;
+			switch (servoSeleccionado)
+			{
+				case 1:
+				PWM1_SetDuty(ServoToOCR(ang));
+				writeString("I1 -> ");
+				break;
 
-			writeString("\r\nServo I1 seleccionado\r\n");
-			writeString("Ingrese angulo 0-180;\r\n");
-		}
+				case 2:
+				PWM1_SetDuty2(ServoToOCR(ang));
+				writeString("D1 -> ");
+				break;
 
-		else if (strcmp(buffer, "2") == 0)
-		{
-			servoSeleccionado = 2;
+				case 3:
+				PWM0_SetDuty1(ServoToTicks(ang));
+				writeString("I2 -> ");
+				break;
 
-			writeString("\r\nServo D1 seleccionado\r\n");
-			writeString("Ingrese angulo 0-180;\r\n");
-		}
+				case 4:
+				PWM0_SetDuty2(ServoToTicks(ang));
+				writeString("D2 -> ");
+				break;
+			}
 
-		else if (strcmp(buffer, "3") == 0)
-		{
-			servoSeleccionado = 3;
+			itoa(ang, out, 10);
 
-			writeString("\r\nServo I2 seleccionado\r\n");
-			writeString("Ingrese angulo 0-180;\r\n");
-		}
+			writeString(out);
+			writeString("\r\n");
 
-		else if (strcmp(buffer, "4") == 0)
-		{
-			servoSeleccionado = 4;
+			// RESETEAR selección
+			servoSeleccionado = 0;
 
-			writeString("\r\nServo D2 seleccionado\r\n");
-			writeString("Ingrese angulo 0-180;\r\n");
-		}
-
-		else if (strcmp(buffer, "x") == 0)
-		{
-			modo = 0;
-
-			printMenu();
-		}
-
-		else
-		{
-			writeString("Servo invalido\r\n");
-		}
-	}
-
-	//========= YA HAY SERVO SELECCIONADO =========//
-
-	else
-	{
-		uint8_t ang = atoi(buffer);
-
-		if (ang > 180)
-		{
-			ang = 180;
-		}
-
-		switch (servoSeleccionado)
-		{
-			case 1:
-			PWM1_SetDuty(ServoToOCR(ang));
-			writeString("I1 -> ");
-			break;
-
-			case 2:
-			PWM1_SetDuty2(ServoToOCR(ang));
-			writeString("D1 -> ");
-			break;
-
-			case 3:
-			PWM0_SetDuty1(ServoToTicks(ang));
-			writeString("I2 -> ");
-			break;
-
-			case 4:
-			PWM0_SetDuty2(ServoToTicks(ang));
-			writeString("D2 -> ");
-			break;
-		}
-
-		itoa(ang, out, 10);
-
-		writeString(out);
-		writeString("\r\n");
-
-		// RESETEAR selección
-		servoSeleccionado = 0;
-
-		writeString("\r\nSeleccione otro servo:\r\n");
-		writeString("1 -> I1\r\n");
-		writeString("2 -> D1\r\n");
-		writeString("3 -> I2\r\n");
-		writeString("4 -> D2\r\n");
-		writeString("x -> salir\r\n");
+			writeString("\r\nSeleccione otro servo:\r\n");
+			writeString("1 -> I1\r\n");
+			writeString("2 -> D1\r\n");
+			writeString("3 -> I2\r\n");
+			writeString("4 -> D2\r\n");
+			writeString("x -> salir\r\n");
 		
 		
-	}
-}
-	//================ MODO PARPADOS ================//
-
-	else if (modo == 2)
-	{
-		if (strncmp(buffer, "M1:", 3) == 0)
-		{
-			
-			uint8_t ang = atoi(&buffer[3]);
-
-			if (ang > 180)
-			{
-				ang = 180;
-			}
-
-			PWM2_SetDuty1(ServoToTicks(ang));
-
-			writeString("M1 -> ");
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-		}
-
-		else if (strncmp(buffer, "M2:", 3) == 0)
-		{
-			
-			uint8_t ang = atoi(&buffer[3]);
-
-			if (ang > 180)
-			{
-				ang = 180;
-			}
-
-			PWM2_SetDuty2(ServoToTicks(ang));
-
-			writeString("M2 -> ");
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-		}
-
-		else if (strcmp(buffer, "x") == 0)
-		{
-			modo = 0;
-
-			printMenu();
-		}
-
-		else
-		{
-			writeString("Comando invalido\r\n");
 		}
 	}
+		//================ MODO PARPADOS ================//
+
+		else if (modo == 2)
+		{
+			if (strncmp(buffer, "M1:", 3) == 0)
+			{
+			
+				uint8_t ang = atoi(&buffer[3]);
+
+				if (ang > 180)
+				{
+					ang = 180;
+				}
+
+				PWM2_SetDuty1(ServoToTicks(ang));
+
+				writeString("M1 -> ");
+
+				itoa(ang, out, 10);
+
+				writeString(out);
+				writeString("\r\n");
+			}
+
+			else if (strncmp(buffer, "M2:", 3) == 0)
+			{
+			
+				uint8_t ang = atoi(&buffer[3]);
+
+				if (ang > 180)
+				{
+					ang = 180;
+				}
+
+				PWM2_SetDuty2(ServoToTicks(ang));
+
+				writeString("M2 -> ");
+
+				itoa(ang, out, 10);
+
+				writeString(out);
+				writeString("\r\n");
+			}
+
+			else if (strcmp(buffer, "x") == 0)
+			{
+				modo = 0;
+
+				printMenu();
+			}
+
+			else
+			{
+				writeString("Comando invalido\r\n");
+			}
+		}
 	
-	else if (modo == 3)
-	{
-		if (strcmp(buffer, "x") == 0)
+		else if (modo == 3)
 		{
-			modo = 0;
+			if (strcmp(buffer, "x") == 0)
+			{
+				modo = 0;
 
-			writeString("Saliendo modo ADC\r\n");
+				writeString("Saliendo modo ADC\r\n");
 
-			printMenu();
+				printMenu();
+			}
 		}
 	}
-}
 //****************************************************************************************************************//
 //Rutina de interrupción 
 

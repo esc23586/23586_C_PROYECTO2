@@ -47,8 +47,11 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 
 //other essential
 #include "UART/UART.h" //Menu logic, and comparisons :3
-
 #include "ServoUtils/ServoUtils.h"// the functions to convert number in angles
+
+//para guardar en eprom
+#include "EEPROMSave/eepromsave.h" // se encarga solo de gaurdar
+#include "ServoMemory/Servomemory.h"// se encarga de reproducir desde eprom 
 
 /****************************************/
 
@@ -59,9 +62,13 @@ Descripción de Modos: Se puede seleccionar entre los modos: manual, EEPROM y Ada
 int main(void)
 {
 	cli();
-	//Entradas- y salidas declaración
-	DDRB |= (1<<DDB5) | (1<<DDB4);
-	PORTB &= ~((1<<PORTB5) | (1<<PORTB4));
+	//Entradas- y salidas declaración pb0 Y pd7 - LEDS DE ESTADO
+	/*
+	DDRB |= (1<<DDB0);
+	PORTB &= ~(1<<PORTB0);
+	DDRD |= (1 << DDD7);
+	PORTD &= ~(1<<PORTD7)
+	*/
 	
 	//inicializaciónes 
 	UART_Init();//Comunicación UART
@@ -69,6 +76,7 @@ int main(void)
 	PWM1_Init();//Control de Timer 1
 	PWM2_Init();//Control de Timer 2
 	ADC_Init();//ADC
+	EEPROM_Init();// guardar en eprom con boton pb5
 	
 	sei();// BUENAS CONSTUMBRES
 
@@ -83,17 +91,36 @@ int main(void)
 	uint16_t adc4;
 	uint16_t adc5;
 
-	uint8_t ang0;
-	uint8_t ang1;
-	uint8_t ang2;
-	uint8_t ang3;
-	uint8_t ang4;
-	uint8_t ang5;
+	
 	//***************************************************//
 	
 	//loop 
 	while (1)
 	{
+		//============EEPROM GUARDADO ==========//
+		/*
+		if(saveFlag)
+		{
+			saveFlag = 0;
+			// pequeño detalle, en teoria no es necesario pues ya es global y en teoria se puede leer directamente.
+			// pero son detalles :3
+			EEPROM_SaveServos(
+			servoAng[0],
+			servoAng[1],
+			servoAng[2],
+			servoAng[3],
+			servoAng[4],
+			servoAng[5]
+			);
+		}
+		*/
+		if(saveFlag)
+		{
+			saveFlag = 0;//apago la flag para que solo guarde una vez y sale
+
+			EEPROM_SaveServos();
+		}
+		
 		//================ UART =================//
 
 		if (commandReady)
@@ -116,28 +143,20 @@ int main(void)
 			adc4 = ADC_Read(6); // A6
 			adc5 = ADC_Read(7); // A7
 
-			//========= ADC -> ANGULO =========//
+			//========= ADC para ANGULO =========// esto es lo de reproducción desde servo memory
+			
+			servoAng[0] = ADCToAngle(adc0);
+			servoAng[1] = ADCToAngle(adc1);
 
-			ang0 = ADCToAngle(adc0);
-			ang1 = ADCToAngle(adc1);
-			ang2 = ADCToAngle(adc2);
-			ang3 = ADCToAngle(adc3);
-			ang4 = ADCToAngle(adc4);
-			ang5 = ADCToAngle(adc5);
+			servoAng[2] = ADCToAngle(adc2);
+			servoAng[3] = ADCToAngle(adc3);
 
-			//========= MOVER SERVOS =========//
+			servoAng[4] = ADCToAngle(adc4);
+			servoAng[5] = ADCToAngle(adc5);
 
-			// Ojos base
-			PWM1_SetDuty(ServoToOCR(ang0));
-			PWM1_SetDuty2(ServoToOCR(ang1));
+			//========= aplicar el pwm =========// esto tambien va de la mano con la parte de eeprom
 
-			// Pupilas
-			PWM0_SetDuty1(ServoToTicks(ang2));
-			PWM0_SetDuty2(ServoToTicks(ang3));
-
-			// Parpados
-			PWM2_SetDuty1(ServoToTicks(ang4));
-			PWM2_SetDuty2(ServoToTicks(ang5));
+			ServoMemory_ApplyPWM();
 		}
 	}
 }

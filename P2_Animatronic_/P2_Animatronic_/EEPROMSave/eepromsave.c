@@ -55,22 +55,8 @@ void EEPROM_Init(void)
 
 //================ ISR =================//
 //rutina de interrúpción para el botonazo. 
+//Versión completamente funcional del botón, este solo guarda cuando se trabaja en modo manual, pero funciona y guarda. 
 
-/*
-ISR(PCINT0_vect)
-{
-	
-	if (!(PINB & (1 << PINB5)))
-	{
-		_delay_ms(20);
-
-		if (!(PINB & (1 << PINB5)))
-		{
-			saveFlag = 1;
-		}
-	}
-}
-*/
 //Cambio de posición de botón de pb5 a pc0, debido a picos de voltaje al conectar los servos.
 ISR(PCINT1_vect)
 {

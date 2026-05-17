@@ -369,6 +369,7 @@ END GROUP
                 0x000000a2                __vector_12
                 0x000000a2                __bad_interrupt
                 0x000000a2                __vector_6
+                0x000000a2                __vector_3
                 0x000000a2                __vector_23
                 0x000000a2                __vector_25
                 0x000000a2                __vector_11
@@ -376,7 +377,6 @@ END GROUP
                 0x000000a2                __vector_17
                 0x000000a2                __vector_19
                 0x000000a2                __vector_5
-                0x000000a2                __vector_4
                 0x000000a2                __vector_9
                 0x000000a2                __vector_2
                 0x000000a2                __vector_21
@@ -396,9 +396,9 @@ END GROUP
  .text.EEPROM_Init
                 0x000000de       0x3a EEPROMSave/eepromsave.o
                 0x000000de                EEPROM_Init
- .text.__vector_3
+ .text.__vector_4
                 0x00000118       0x40 EEPROMSave/eepromsave.o
-                0x00000118                __vector_3
+                0x00000118                __vector_4
  .text.EEPROM_SaveServos
                 0x00000158       0x62 EEPROMSave/eepromsave.o
                 0x00000158                EEPROM_SaveServos
@@ -535,7 +535,7 @@ END GROUP
  *(.fini0)
                 0x00000ccc                _etext = .
 
-.data           0x00800100      0x32a load address 0x00000ccc
+.data           0x00800100      0x33a load address 0x00000ccc
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -561,47 +561,47 @@ END GROUP
                 0x0080010e       0x41 ServoMemory/Servomemory.o
                                  0x44 (size before relaxing)
  .rodata.str1.1
-                0x0080014f      0x2da UART/uart.o
-                                0x30a (size before relaxing)
+                0x0080014f      0x2ea UART/uart.o
+                                0x31a (size before relaxing)
  *(.gnu.linkonce.r*)
-                0x0080042a                . = ALIGN (0x2)
- *fill*         0x00800429        0x1 
-                0x0080042a                _edata = .
-                0x0080042a                PROVIDE (__data_end, .)
+                0x0080043a                . = ALIGN (0x2)
+ *fill*         0x00800439        0x1 
+                0x0080043a                _edata = .
+                0x0080043a                PROVIDE (__data_end, .)
 
-.bss            0x0080042a       0x27
-                0x0080042a                PROVIDE (__bss_start, .)
+.bss            0x0080043a       0x27
+                0x0080043a                PROVIDE (__bss_start, .)
  *(.bss)
  *(.bss*)
- .bss.saveFlag  0x0080042a        0x1 EEPROMSave/eepromsave.o
-                0x0080042a                saveFlag
- .bss.counter2  0x0080042b        0x2 PWM2F/PWM2.o
-                0x0080042b                counter2
- .bss.counter0  0x0080042d        0x2 PWMm/PWM.o
-                0x0080042d                counter0
+ .bss.saveFlag  0x0080043a        0x1 EEPROMSave/eepromsave.o
+                0x0080043a                saveFlag
+ .bss.counter2  0x0080043b        0x2 PWM2F/PWM2.o
+                0x0080043b                counter2
+ .bss.counter0  0x0080043d        0x2 PWMm/PWM.o
+                0x0080043d                counter0
  .bss.servoSeleccionado
-                0x0080042f        0x1 UART/uart.o
-                0x0080042f                servoSeleccionado
- .bss.idx       0x00800430        0x1 UART/uart.o
-                0x00800430                idx
+                0x0080043f        0x1 UART/uart.o
+                0x0080043f                servoSeleccionado
+ .bss.idx       0x00800440        0x1 UART/uart.o
+                0x00800440                idx
  .bss.commandReady
-                0x00800431        0x1 UART/uart.o
-                0x00800431                commandReady
- .bss.modo      0x00800432        0x1 UART/uart.o
-                0x00800432                modo
+                0x00800441        0x1 UART/uart.o
+                0x00800441                commandReady
+ .bss.modo      0x00800442        0x1 UART/uart.o
+                0x00800442                modo
  *(COMMON)
- COMMON         0x00800433       0x1e UART/uart.o
-                0x00800433                out
-                0x0080043d                buffer
-                0x00800451                PROVIDE (__bss_end, .)
+ COMMON         0x00800443       0x1e UART/uart.o
+                0x00800443                out
+                0x0080044d                buffer
+                0x00800461                PROVIDE (__bss_end, .)
                 0x00000ccc                __data_load_start = LOADADDR (.data)
-                0x00000ff6                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001006                __data_load_end = (__data_load_start + SIZEOF (.data))
 
-.noinit         0x00800451        0x0
+.noinit         0x00800461        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
  *(.noinit*)
                 [!provide]                PROVIDE (__noinit_end, .)
-                0x00800451                _end = .
+                0x00800461                _end = .
                 [!provide]                PROVIDE (__heap_start, .)
 
 .eeprom         0x00810000        0x0
@@ -732,20 +732,20 @@ END GROUP
  .debug_abbrev  0x00000e21       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
  .debug_abbrev  0x00000e35       0x14 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eeupd_byte.o)
 
-.debug_line     0x00000000     0x13d6
+.debug_line     0x00000000     0x13d8
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000      0x134 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5/crtatmega328p.o
  .debug_line    0x00000134       0xe0 ADC/adc.o
- .debug_line    0x00000214      0x25a EEPROMSave/eepromsave.o
- .debug_line    0x0000046e      0x20e main.o
- .debug_line    0x0000067c       0xef PWM1F/PWM1.o
- .debug_line    0x0000076b      0x143 PWM2F/PWM2.o
- .debug_line    0x000008ae      0x13b PWMm/PWM.o
- .debug_line    0x000009e9      0x303 ServoMemory/Servomemory.o
- .debug_line    0x00000cec       0xee ServoUtils/ServoUtils.o
- .debug_line    0x00000dda      0x4cc UART/uart.o
- .debug_line    0x000012a6       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
- .debug_line    0x00001320       0xb6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eeupd_byte.o)
+ .debug_line    0x00000214      0x25c EEPROMSave/eepromsave.o
+ .debug_line    0x00000470      0x20e main.o
+ .debug_line    0x0000067e       0xef PWM1F/PWM1.o
+ .debug_line    0x0000076d      0x143 PWM2F/PWM2.o
+ .debug_line    0x000008b0      0x13b PWMm/PWM.o
+ .debug_line    0x000009eb      0x303 ServoMemory/Servomemory.o
+ .debug_line    0x00000cee       0xee ServoUtils/ServoUtils.o
+ .debug_line    0x00000ddc      0x4cc UART/uart.o
+ .debug_line    0x000012a8       0x7a C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eerd_byte.o)
+ .debug_line    0x00001322       0xb6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/gcc/dev/atmega328p/avr5\libatmega328p.a(eeupd_byte.o)
 
 .debug_frame    0x00000000      0x384
  *(.debug_frame)

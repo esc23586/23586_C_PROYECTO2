@@ -31,20 +31,32 @@ void EEPROM_Init(void)
 	PORTB &= ~(1 << PORTB0);
 	PORTD &= ~(1 << PORTD7);
 	
-	// PB5 entrada
+	// PB5 entrada---
+	/*
 	DDRB &= ~(1 << DDB5);
 	
 	// Pull-up
 	PORTB |= (1 << PORTB5);
+	
 	// Pin Change Interrupt
 	PCICR |= (1 << PCIE0);
 
 	// PB5
 	PCMSK0 |= (1 << PCINT5);
+	*/
+	//boton en pc0
+	DDRC &= ~(1 << DDC0);// Se le aplica cero por ser entrada 
+	//pull ups 
+	PORTC |= (1 << PORTC0);
+	
+	PCICR |= (1 << PCIE1);//Pinchange Interrupt
+	PCMSK1 |= (1 << PCINT8);//pc0 --pcint8
 }
 
 //================ ISR =================//
 //rutina de interrúpción para el botonazo. 
+
+/*
 ISR(PCINT0_vect)
 {
 	
@@ -53,6 +65,20 @@ ISR(PCINT0_vect)
 		_delay_ms(20);
 
 		if (!(PINB & (1 << PINB5)))
+		{
+			saveFlag = 1;
+		}
+	}
+}
+*/
+//Cambio de posición de botón de pb5 a pc0, debido a picos de voltaje al conectar los servos.
+ISR(PCINT1_vect)
+{
+	if (!(PINC & (1 << PINC0)))
+	{
+		_delay_ms(20);
+
+		if (!(PINC & (1 << PINC0)))
 		{
 			saveFlag = 1;
 		}

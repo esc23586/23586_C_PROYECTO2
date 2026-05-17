@@ -130,10 +130,11 @@ void processCommand(void)
 			modo = 1;
 
 			writeString("\r\nModo OJOS\r\n");
-			writeString("I1:angulo\r\n");
-			writeString("D1:angulo\r\n");
-			writeString("I2:angulo\r\n");
-			writeString("D2:angulo\r\n");
+			writeString("1 -> Servo I1\r\n");
+			writeString("2 -> Servo D1\r\n");
+			writeString("3 -> Servo I2\r\n");
+			writeString("4 -> Servo D2\r\n");
+			
 			writeString("x para salir\r\n");
 		}
 
@@ -184,11 +185,11 @@ void processCommand(void)
 
 	else if (modo == 1)
 	{
-		//========= NO HAY SERVO SELECCIONADO =========//
+		//NO HAY SERVO SELECCIONADO
 
 		if (servoSeleccionado == 0)
 		{
-			if (strcmp(buffer, "1") == 0)
+			if (strcmp(buffer, "1") == 0)// en caso se quiera editar el angulo de base izquierdo
 			{
 				servoSeleccionado = 1;
 
@@ -196,7 +197,7 @@ void processCommand(void)
 				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			else if (strcmp(buffer, "2") == 0)
+			else if (strcmp(buffer, "2") == 0)//en caso se quiera editar el angulo de base derecho
 			{
 				servoSeleccionado = 2;
 
@@ -204,7 +205,7 @@ void processCommand(void)
 				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			else if (strcmp(buffer, "3") == 0)
+			else if (strcmp(buffer, "3") == 0)//en caso se quiera editar el angulo de ojo izquierda
 			{
 				servoSeleccionado = 3;
 
@@ -212,7 +213,7 @@ void processCommand(void)
 				writeString("Ingrese angulo 0-180;\r\n");
 			}
 
-			else if (strcmp(buffer, "4") == 0)
+			else if (strcmp(buffer, "4") == 0)////en caso se quiera editar el angulo de ojo derecho
 			{
 				servoSeleccionado = 4;
 
@@ -357,7 +358,7 @@ void processCommand(void)
 //****************************************************************************************************************//
 //Rutina de interrupción 
 
-
+//Rutina de interrupción para manejar el menú principal
 //======================== ISR UART ==========================//
 
 ISR(USART_RX_vect)

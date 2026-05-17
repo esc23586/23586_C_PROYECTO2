@@ -94,12 +94,24 @@ void printMenu(void)
 {
 	writeString("\r\n");
 	writeString("======= MENU ANIMATRONICO =======\r\n");
-	writeString("1 -> Control de Ojos UART\r\n");
-	writeString("2 -> Control de Parpados UART\r\n");
-	writeString("3 -> Leer EEPROM\r\n");
-	writeString("4 -> Control Manual ADC\r\n");
+	writeString("1 > Control de Ojos UART\r\n");
+	writeString("2 > Control de Parpados UART\r\n");
+	writeString("3 > Reproducir Posiciones EEPROM\r\n");
+	writeString("4 > Control Manual ADC\r\n");
+	writeString("5 > Editar Posiciones EEPROM\r\n");
 	writeString("=================================\r\n");
+	
+	writeString("Presiona el número de la opción y añade al final ; \r\n");
+	writeString("Ejemplo: 1; \r\n");
 	writeString("> ");
+	
+	/* menú opciones
+	1 -> Control Ojos UART
+	2 -> Control Parpados UART
+	3 -> Reproducir Posiciones EEPROM
+	4 -> Control Manual ADC
+	5 -> Editar Posiciones EEPROM
+	*/
 }
 
 //================ Conversión Servos ================//
@@ -150,6 +162,7 @@ void processCommand(void)
 
 		else if (strcmp(buffer, "3") == 0)
 		{
+		/*
 			writeString("Leyendo EEPROM...\r\n");
 			
 			writeString("Cargando posiciones EEPROM...\r\n");//nuevo con la adición a eeprom 
@@ -157,8 +170,24 @@ void processCommand(void)
 			ServoMemory_PrintEEPROM();//muestra por UART los ángulos cargados, en listita
 			
 			writeString("Posiciones aplicadas\r\n");// basicmaente interacción con la interfás del susuario. 
+			*/
 			//En esta versión del código se hará un a rpueba para sacar los valores que se guardaron al presiona pb5
+		
+		
+			modo = 4;
+
+			writeString("\r\n===== REPRODUCIR POSICIONES =====\r\n");
+
+			writeString("1 -> Posicion 1\r\n");
+			writeString("2 -> Posicion 2\r\n");
+			writeString("3 -> Posicion 3\r\n");
+			writeString("4 -> Posicion 4\r\n");
+			writeString("5 -> Posicion 5\r\n");
+
+			writeString("x -> salir\r\n");
 		}
+		
+		//================ ADC MANUAL ================//
 		
 		else if (strcmp(buffer, "4") == 0)
 		{
@@ -169,6 +198,22 @@ void processCommand(void)
 			writeString("x; para salir\r\n");
 		}
 		
+		//================ EDITAR EEPROM ================// mi opción 5
+
+		else if (strcmp(buffer, "5") == 0)
+		{
+			modo = 5;
+
+			writeString("\r\n===== EDITAR POSICIONES =====\r\n");
+
+			writeString("1 -> Editar Posicion 1\r\n");
+			writeString("2 -> Editar Posicion 2\r\n");
+			writeString("3 -> Editar Posicion 3\r\n");
+			writeString("4 -> Editar Posicion 4\r\n");
+			writeString("5 -> Editar Posicion 5\r\n");
+
+			writeString("x -> salir\r\n");
+		}
 		
 		else
 		{
@@ -177,8 +222,8 @@ void processCommand(void)
 		}
 	}
 
-//////////////////////////////////////////////////////////Logica para navegar en cada una de las opciones dichas anteirormente
-//para la opcio n1 y 2: 
+/////////////////////////////////////////---Logica para navegar en cada una de las opciones dichas anteirormente
+//para la opcion 1 y 2: 
 
 
 	//================ MODO OJOS ================//
@@ -234,7 +279,7 @@ void processCommand(void)
 			}
 		}
 
-		//========= YA HAY SERVO SELECCIONADO =========//
+		//YA hay un servo seleccionado (un motor)
 
 		else
 		{
@@ -273,7 +318,7 @@ void processCommand(void)
 			writeString(out);
 			writeString("\r\n");
 
-			// RESETEAR selección
+			// Reset de selección por si quiere seleccionar otro dentro del mismo grupo de motores (ojos y bases)
 			servoSeleccionado = 0;
 
 			writeString("\r\nSeleccione otro servo:\r\n");
@@ -286,7 +331,8 @@ void processCommand(void)
 		
 		}
 	}
-		//================ MODO PARPADOS ================//
+	
+//================ MODO PARPADOS ================// MI OPCIÓN 2
 
 		else if (modo == 2)
 		{
@@ -342,7 +388,8 @@ void processCommand(void)
 				writeString("Comando invalido\r\n");
 			}
 		}
-	
+//  MODO PARA LA LECTURA adc la opción 4 de mi menú
+
 		else if (modo == 3)
 		{
 			if (strcmp(buffer, "x") == 0)
@@ -354,11 +401,172 @@ void processCommand(void)
 				printMenu();
 			}
 		}
+//================ REPRODUCIR POSICIONES ================// Opción 3(lectura de eeprom )  pero modo 4
+
+		else if (modo == 4)
+		{
+			if (strcmp(buffer, "1") == 0)
+			{
+				writeString("Reproduciendo Posicion 1\r\n");
+
+				// Pose_Load(1);
+				
+
+				writeString("Posicion aplicada\r\n");
+			}
+
+			else if (strcmp(buffer, "2") == 0)
+			{
+				writeString("Reproduciendo Posicion 2\r\n");
+
+				// Pose_Load(2);
+				
+
+				writeString("Posicion aplicada\r\n");
+			}
+
+			else if (strcmp(buffer, "3") == 0)
+			{
+				writeString("Reproduciendo Posicion 3\r\n");
+
+				// Pose_Load(3);
+				
+				writeString("Posicion aplicada\r\n");
+			}
+
+			else if (strcmp(buffer, "4") == 0)
+			{
+				writeString("Reproduciendo Posicion 4\r\n");
+
+				// Pose_Load(4);
+				
+
+				writeString("Posicion aplicada\r\n");
+			}
+
+			else if (strcmp(buffer, "5") == 0)
+			{
+				writeString("Reproduciendo Posicion 5\r\n");
+
+				// Pose_Load(5);
+				
+
+				writeString("Posicion aplicada\r\n");
+			}
+
+			else if (strcmp(buffer, "x") == 0)
+			{
+				modo = 0;
+
+				printMenu();
+			}
+
+			else
+			{
+				writeString("Opcion invalida\r\n");
+			}
+		}
+//================ EDITAR POSICIONES // opción numero 5 del menú
+
+		else if (modo == 5)
+		{
+			if (strcmp(buffer, "1") == 0)
+			{
+				writeString("Editando Posicion 1\r\n");
+
+				// Pose_Edit(1);
+				Pose_Save(
+				1,
+				servoAng[0],
+				servoAng[1],
+				servoAng[2],
+				servoAng[3],
+				servoAng[4],
+				servoAng[5]
+				);
+			}
+
+			else if (strcmp(buffer, "2") == 0)
+			{
+				writeString("Editando Posicion 2\r\n");
+
+				// Pose_Edit(2);
+				Pose_Save(
+				2,
+				servoAng[0],
+				servoAng[1],
+				servoAng[2],
+				servoAng[3],
+				servoAng[4],
+				servoAng[5]
+				);
+			}
+
+			else if (strcmp(buffer, "3") == 0)
+			{
+				writeString("Editando Posicion 3\r\n");
+
+				// Pose_Edit(3);
+				Pose_Save(
+				3,
+				servoAng[0],
+				servoAng[1],
+				servoAng[2],
+				servoAng[3],
+				servoAng[4],
+				servoAng[5]
+				);
+			}
+
+			else if (strcmp(buffer, "4") == 0)
+			{
+				writeString("Editando Posicion 4\r\n");
+
+				// Pose_Edit(4);
+				Pose_Save(
+				4,
+				servoAng[0],
+				servoAng[1],
+				servoAng[2],
+				servoAng[3],
+				servoAng[4],
+				servoAng[5]
+				);
+			}
+
+			else if (strcmp(buffer, "5") == 0)
+			{
+				writeString("Editando Posicion 5\r\n");
+
+				// Pose_Edit(5);
+				Pose_Save(
+				5,
+				servoAng[0],
+				servoAng[1],
+				servoAng[2],
+				servoAng[3],
+				servoAng[4],
+				servoAng[5]
+				);
+			}
+
+			else if (strcmp(buffer, "x") == 0)
+			{
+				modo = 0;
+
+				printMenu();
+			}
+
+			else
+			{
+				writeString("Opcion invalida\r\n");
+			}
+		}
 	}
 //****************************************************************************************************************//
 //Rutina de interrupción 
 
-//Rutina de interrupción para manejar el menú principal
+//Rutina de interrupción para manejar el menú principal para comunicación rx 
 //======================== ISR UART ==========================//
 
 ISR(USART_RX_vect)

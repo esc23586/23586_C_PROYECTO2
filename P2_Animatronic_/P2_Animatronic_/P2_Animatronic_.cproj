@@ -135,6 +135,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="PosesEditor\PosesEDITOR.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="PosesEditor\PosesEDITOR.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="PWM1F\PWM1.c">
       <SubType>compile</SubType>
     </Compile>
@@ -175,6 +181,7 @@
   <ItemGroup>
     <Folder Include="ADC" />
     <Folder Include="EEPROMSave" />
+    <Folder Include="PosesEditor" />
     <Folder Include="ServoMemory" />
     <Folder Include="ServoUtils" />
     <Folder Include="PWM2F" />

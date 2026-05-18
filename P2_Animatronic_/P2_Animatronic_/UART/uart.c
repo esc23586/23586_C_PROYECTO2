@@ -23,7 +23,8 @@
 //meterme a una carpeta desde otra carpeta ..
 
 //PARTE DE CONEXIÓN CON EEPROM 
-#include "../ServoMemory/ServoMemory.h"//libreria de apoyo así como la de servo Utilitis
+#include "../ServoMemory/ServoMemory.h"//libreria de apoyo para lectura de memoria de eeporm (opción 3)
+#include "../PosesEditor/PosesEditor.h"// conezión con la librería de apoyo para la edicion de poses (opcíon5)
 
 //================ Variables Globales ================//
 
@@ -140,14 +141,21 @@ void processCommand(void)
 		if (strcmp(buffer, "1") == 0)
 		{
 			modo = 1;
-
+/*
 			writeString("\r\nModo OJOS\r\n");
 			writeString("1 -> Servo I1\r\n");
 			writeString("2 -> Servo D1\r\n");
 			writeString("3 -> Servo I2\r\n");
 			writeString("4 -> Servo D2\r\n");
-			
-			writeString("x para salir\r\n");
+*/
+			writeString("\r\nModo OJOS\r\n");
+			writeString("I1:angulo;\r\n");
+			writeString("D1:angulo;\r\n");
+			writeString("I2:angulo;\r\n");
+			writeString("D2:angulo;\r\n");
+
+
+			writeString("x; para salir\r\n");
 		}
 
 		else if (strcmp(buffer, "2") == 0)
@@ -162,7 +170,7 @@ void processCommand(void)
 
 		else if (strcmp(buffer, "3") == 0)
 		{
-		/*
+			/*
 			writeString("Leyendo EEPROM...\r\n");
 			
 			writeString("Cargando posiciones EEPROM...\r\n");//nuevo con la adición a eeprom 
@@ -223,14 +231,13 @@ void processCommand(void)
 	}
 
 /////////////////////////////////////////---Logica para navegar en cada una de las opciones dichas anteirormente
-//para la opcion 1 y 2: 
+//para la opcion 1 
 
 
 	//================ MODO OJOS ================//
-
+/*
 	else if (modo == 1)
-	{
-		//NO HAY SERVO SELECCIONADO
+	{//NO HAY SERVO SELECCIONADO
 
 		if (servoSeleccionado == 0)
 		{
@@ -331,8 +338,98 @@ void processCommand(void)
 		
 		}
 	}
-	
-//================ MODO PARPADOS ================// MI OPCIÓN 2
+*/	
+	else if (modo == 1)
+	{
+		if (strncmp(buffer, "I1:", 3) == 0)
+		{
+			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
+
+			PWM1_SetDuty(ServoToOCR(ang));
+
+			writeString("I1 -> ");
+
+			itoa(ang, out, 10);
+
+			writeString(out);
+			writeString("\r\n");
+		}
+
+		else if (strncmp(buffer, "D1:", 3) == 0)
+		{
+			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
+
+			PWM1_SetDuty2(ServoToOCR(ang));
+
+			writeString("D1 -> ");
+
+			itoa(ang, out, 10);
+
+			writeString(out);
+			writeString("\r\n");
+		}
+
+		else if (strncmp(buffer, "I2:", 3) == 0)
+		{
+			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
+
+			PWM0_SetDuty1(ServoToTicks(ang));
+
+			writeString("I2 -> ");
+
+			itoa(ang, out, 10);
+
+			writeString(out);
+			writeString("\r\n");
+		}
+
+		else if (strncmp(buffer, "D2:", 3) == 0)
+		{
+			uint8_t ang = atoi(&buffer[3]);
+
+			if (ang > 180)
+			{
+				ang = 180;
+			}
+
+			PWM0_SetDuty2(ServoToTicks(ang));
+
+			writeString("D2 -> ");
+
+			itoa(ang, out, 10);
+
+			writeString(out);
+			writeString("\r\n");
+		}
+
+		else if (strcmp(buffer, "x") == 0)
+		{
+			modo = 0;
+
+			printMenu();
+		}
+
+		else
+		{
+			writeString("Comando invalido\r\n");
+		}
+	}
+//================ MODO PARPADOS =================================// MI OPCIÓN 2
 
 		else if (modo == 2)
 		{
@@ -410,6 +507,11 @@ void processCommand(void)
 				writeString("Reproduciendo Posicion 1\r\n");
 
 				// Pose_Load(1);
+
+				ServoMemory_LoadAndApply(1);
+
+				ServoMemory_PrintEEPROM();
+
 				
 
 				writeString("Posicion aplicada\r\n");
@@ -420,6 +522,9 @@ void processCommand(void)
 				writeString("Reproduciendo Posicion 2\r\n");
 
 				// Pose_Load(2);
+				ServoMemory_LoadAndApply(2);
+
+				ServoMemory_PrintEEPROM();
 				
 
 				writeString("Posicion aplicada\r\n");
@@ -430,6 +535,9 @@ void processCommand(void)
 				writeString("Reproduciendo Posicion 3\r\n");
 
 				// Pose_Load(3);
+				ServoMemory_LoadAndApply(3);
+
+				ServoMemory_PrintEEPROM();
 				
 				writeString("Posicion aplicada\r\n");
 			}
@@ -439,6 +547,9 @@ void processCommand(void)
 				writeString("Reproduciendo Posicion 4\r\n");
 
 				// Pose_Load(4);
+				ServoMemory_LoadAndApply(4);
+
+				ServoMemory_PrintEEPROM();
 				
 
 				writeString("Posicion aplicada\r\n");
@@ -449,6 +560,9 @@ void processCommand(void)
 				writeString("Reproduciendo Posicion 5\r\n");
 
 				// Pose_Load(5);
+				ServoMemory_LoadAndApply(5);
+
+				ServoMemory_PrintEEPROM();
 				
 
 				writeString("Posicion aplicada\r\n");
@@ -466,7 +580,7 @@ void processCommand(void)
 				writeString("Opcion invalida\r\n");
 			}
 		}
-//================ EDITAR POSICIONES // opción numero 5 del menú
+//===================================== EDITAR POSICIONES // opción numero 5 del menú
 
 		else if (modo == 5)
 		{

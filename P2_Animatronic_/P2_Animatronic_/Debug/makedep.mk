@@ -8,6 +8,8 @@ EEPROMSave\eepromsave.c
 
 main.c
 
+PosesEditor\PosesEDITOR.c
+
 PWM1F\PWM1.c
 
 PWM2F\PWM2.c

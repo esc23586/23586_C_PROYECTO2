@@ -94,7 +94,30 @@ void ServoMemory_ApplyPWM(void)// funcion solo para el pwm
 	PWM2_SetDuty2(ServoToTicks(servoAng[5]));
 }
 
-//================ LEER EEPROM  y se aplica =================//
+void ServoMemory_LoadAndApply(uint8_t pose)
+{
+	uint8_t base;
+
+	base = (pose - 1) * 6;
+
+	//================ LEER EEPROM =================//
+
+	servoAng[0] = eeprom_read_byte((uint8_t*)(base + 0));
+	servoAng[1] = eeprom_read_byte((uint8_t*)(base + 1));
+
+	servoAng[2] = eeprom_read_byte((uint8_t*)(base + 2));
+	servoAng[3] = eeprom_read_byte((uint8_t*)(base + 3));
+
+	servoAng[4] = eeprom_read_byte((uint8_t*)(base + 4));
+	servoAng[5] = eeprom_read_byte((uint8_t*)(base + 5));
+
+	//================ APLICAR PWM =================//
+
+	ServoMemory_ApplyPWM();
+}
+
+//================(Verión anterior para la lectura de eeprom)  LEER EEPROM  y se aplicaba =================//
+/*
 	void ServoMemory_LoadAndApply(void)
 	{
 		//LEER EEPROM:
@@ -112,3 +135,4 @@ void ServoMemory_ApplyPWM(void)// funcion solo para el pwm
 
 		ServoMemory_ApplyPWM();
 	}
+	*/

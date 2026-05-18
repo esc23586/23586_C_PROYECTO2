@@ -17,8 +17,9 @@ extern volatile uint8_t servoAng[6];
 
 //================ FUNCIONES =================//
 
-void ServoMemory_LoadAndApply(void);
+//void ServoMemory_LoadAndApply(void); esto era para las pruebas de pc0
 
+void ServoMemory_LoadAndApply(uint8_t pose);
 void ServoMemory_ApplyPWM(void);
 //FUNCIÓN para mi print
 void ServoMemory_PrintEEPROM(void);

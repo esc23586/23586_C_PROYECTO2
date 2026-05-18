@@ -75,22 +75,22 @@ def message(client, feed_id, payload):
     # CONVERTIR FEEDS A COMANDOS UART
     # =====================================
     if feed_id == "ojos":
-        comando = f"I2:{payload}"
+        comando = f"I2:{payload};"
 
     elif feed_id == "ojo-d":
-        comando = f"D2:{payload}"
+        comando = f"D2:{payload};"
 
     elif feed_id == "base-ojo-iz":
-        comando = f"I1:{payload}"
+        comando = f"I1:{payload};"
 
     elif feed_id == "base-ojo-d":
-        comando = f"D1:{payload}"
+        comando = f"D1:{payload};"
 
     elif feed_id == "parpado-iz":
-        comando = f"M1:{payload}"
+        comando = f"M1:{payload};"
 
     elif feed_id == "parpado-d":
-        comando = f"M2:{payload}"    
+        comando = f"M2:{payload};"    
 
     # =====================================
     # ENVIAR UART

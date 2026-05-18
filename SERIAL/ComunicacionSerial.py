@@ -75,22 +75,22 @@ def message(client, feed_id, payload):
     # CONVERTIR FEEDS A COMANDOS UART
     # =====================================
     if feed_id == "ojo_iz":
-        comando = f"I2,{payload};"
+        comando = f"I2;{payload};"
 
     elif feed_id == "ojo_der":
-        comando = f"D2,{payload};"
+        comando = f"D2;{payload};"
 
     elif feed_id == "base_iz":
-        comando = f"I1,{payload};"
+        comando = f"I1;{payload};"
 
     elif feed_id == "base_der":
-        comando = f"D1,{payload};"
+        comando = f"D1;{payload};"
 
     elif feed_id == "parpado_iz":
-        comando = f"M1,{payload};"
+        comando = f"M1;{payload};"
 
     elif feed_id == "parpado_der":
-        comando = f"M2,{payload};"    
+        comando = f"M2;{payload};"    
 
     # =====================================
     # ENVIAR UART
@@ -99,7 +99,7 @@ def message(client, feed_id, payload):
     if comando != "":
 
         print("Enviando:", comando)
-
+        print(repr(comando))# me permite ver qué es lo que ando mandando
         ser.write(comando.encode())
 
 
@@ -127,5 +127,6 @@ while True:
     print('sending count: ', run_count)
     client.publish(FEED_ID_Send, run_count)
     """
-    print('Running "main loop" ')
+    #print('Running "main loop" ')
+
     time.sleep(1)

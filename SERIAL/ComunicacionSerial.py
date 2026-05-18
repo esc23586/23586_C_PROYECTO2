@@ -89,7 +89,7 @@ def message(client, feed_id, payload):
     elif feed_id == "parpado-iz":
         comando = f"M1;{payload};"
 
-    elif feed_id == "parpado.d":
+    elif feed_id == "parpado-d":
         comando = f"M2;{payload};"    
 
     # =====================================

@@ -100,6 +100,12 @@ def message(client, feed_id, payload):
 
         print("Enviando:", comando)
         print(repr(comando))# me permite ver qué es lo que ando mandando
+        # Cambiar al modo UART
+        ser.write("1;".encode())
+
+        time.sleep(0.2)
+
+        #y aqui mando el dato 
         ser.write(comando.encode())
 
 

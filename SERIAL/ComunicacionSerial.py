@@ -43,14 +43,14 @@ def connected(client):
     #print('Waiting for feed data...')
     print("Conectado a Adafruit IO")
 
-    client.subscribe("ojo_iz")
-    client.subscribe("ojo_der")
+    client.subscribe("ojos")
+    client.subscribe("ojo-d")
 
-    client.subscribe("base_iz")
-    client.subscribe("base_der")
+    client.subscribe("base-ojo-iz")
+    client.subscribe("base-ojo-d")
 
-    client.subscribe("parpado_iz")
-    client.subscribe("parpado_der")
+    client.subscribe("parpado-iz")
+    client.subscribe("parpado-d")
 
 def disconnected(client):
     """Disconnected function will be called when the client disconnects."""
@@ -74,22 +74,22 @@ def message(client, feed_id, payload):
     # =====================================
     # CONVERTIR FEEDS A COMANDOS UART
     # =====================================
-    if feed_id == "ojo_iz":
+    if feed_id == "ojos":
         comando = f"I2;{payload};"
 
-    elif feed_id == "ojo_der":
+    elif feed_id == "ojo-d":
         comando = f"D2;{payload};"
 
-    elif feed_id == "base_iz":
+    elif feed_id == "base-ojo-iz":
         comando = f"I1;{payload};"
 
-    elif feed_id == "base_der":
+    elif feed_id == "base-ojo-d":
         comando = f"D1;{payload};"
 
-    elif feed_id == "parpado_iz":
+    elif feed_id == "parpado-iz":
         comando = f"M1;{payload};"
 
-    elif feed_id == "parpado_der":
+    elif feed_id == "parpado.d":
         comando = f"M2;{payload};"    
 
     # =====================================

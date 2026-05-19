@@ -11,8 +11,7 @@
   
  
  */ 
-//void ServoMemory_LoadAndApply(void);
-// Esta función LEE EEPROM- obtiene ángulos- convierte a PWM- mueve servos
+
 
 #include "Servomemory.h"
 

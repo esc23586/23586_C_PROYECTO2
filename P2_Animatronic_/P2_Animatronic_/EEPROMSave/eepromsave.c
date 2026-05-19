@@ -31,19 +31,6 @@ void EEPROM_Init(void)
 	PORTB &= ~(1 << PORTB0);
 	PORTD &= ~(1 << PORTD7);
 	
-	// PB5 entrada---
-	/*
-	DDRB &= ~(1 << DDB5);
-	
-	// Pull-up
-	PORTB |= (1 << PORTB5);
-	
-	// Pin Change Interrupt
-	PCICR |= (1 << PCIE0);
-
-	// PB5
-	PCMSK0 |= (1 << PCINT5);
-	*/
 	//boton en pc0
 	DDRC &= ~(1 << DDC0);// Se le aplica cero por ser entrada 
 	//pull ups 

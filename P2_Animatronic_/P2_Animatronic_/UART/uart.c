@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// PWM
+// librerías de mi PWM
 #include "../PWMm/PWM.h"
 #include "../PWM1F/PWM1.h"
 #include "../PWM2F/PWM2.h"
@@ -48,6 +48,13 @@ volatile uint8_t servoSeleccionado = 0;
 
 void UART_Init(void)
 {
+		//=== Leds de estado
+		DDRB |= (1 << DDB0);
+		DDRD |= (1 << DDD7);
+
+		PORTB &= ~(1 << PORTB0);
+		PORTD &= ~(1 << PORTD7);
+		
 	// RX entrada
 	DDRD &= ~(1 << DDD0);
 
@@ -69,9 +76,9 @@ void UART_Init(void)
 	UBRR0 = 103;
 }
 
-//========== UART funcoines básicas de comunicación ==========//
+//========== UART funciones básicas de comunicación ==========//
 
-void writeChar(char c)//para caracters
+void writeChar(char c)//para carácters
 {
 	while (!(UCSR0A & (1 << UDRE0)));
 
@@ -107,11 +114,11 @@ void printMenu(void)
 	writeString("> ");
 	
 	/* menú opciones
-	1 -> Control Ojos UART
-	2 -> Control Parpados UART
-	3 -> Reproducir Posiciones EEPROM
-	4 -> Control Manual ADC
-	5 -> Editar Posiciones EEPROM
+	1 > Control Ojos UART
+	2 > Control Parpados UART
+	3 > Reproducir Posiciones EEPROM
+	4 > Control Manual ADC
+	5 > Editar Posiciones EEPROM
 	*/
 }
 
@@ -137,17 +144,17 @@ void processCommand(void)
 	//================ MODO 0 ================//
 
 	if (modo == 0)
-	{
+	{ 	
 		if (strcmp(buffer, "1") == 0)
 		{
+			//leds de estados:
+			PORTD |= (1 << PORTD7);   // Enciende PD7
+			// apagar PB0 (por si se encuentra encendido)
+			PORTB &= ~(1 << PORTB0);
+			
+			//logica de mi estado:
+			
 			modo = 1;
-/*
-			writeString("\r\nModo OJOS\r\n");
-			writeString("1 -> Servo I1\r\n");
-			writeString("2 -> Servo D1\r\n");
-			writeString("3 -> Servo I2\r\n");
-			writeString("4 -> Servo D2\r\n");
-*/
 			writeString("\r\nModo OJOS\r\n");
 			writeString("I1:angulo;\r\n");
 			writeString("D1:angulo;\r\n");
@@ -160,12 +167,18 @@ void processCommand(void)
 
 		else if (strcmp(buffer, "2") == 0)
 		{
+			//leds de estados:
+			PORTD |= (1 << PORTD7);   // Enciende PD7
+			// apagar PB0 (por si se encuentra encendido)
+			PORTB &= ~(1 << PORTB0);
+			
+			//logica de mi estado:
 			modo = 2;
 
 			writeString("\r\nModo PARPADOS\r\n");
-			writeString("M1:angulo\r\n");
-			writeString("M2:angulo\r\n");
-			writeString("x para salir\r\n");
+			writeString("M1:angulo;\r\n");
+			writeString("M2:angulo;\r\n");
+			writeString("x; para salir\r\n");
 		}
 
 		else if (strcmp(buffer, "3") == 0)
@@ -179,26 +192,39 @@ void processCommand(void)
 			
 			writeString("Posiciones aplicadas\r\n");// basicmaente interacción con la interfás del susuario. 
 			*/
-			//En esta versión del código se hará un a rpueba para sacar los valores que se guardaron al presiona pb5
+			//En esta versión del código se hará un a prueba beta para sacar los valores que se guardaron al presiona pb5
 		
-		
+			
+			//leds de estados:
+			PORTD |= (1 << PORTD7);   // Enciende PD7
+			// encender PB0 (por si se encuentra apagado)
+			PORTB |= (1 << PORTB0);
+			
+			//logica de mi estado:
+			
 			modo = 4;
 
 			writeString("\r\n===== REPRODUCIR POSICIONES =====\r\n");
 
-			writeString("1 -> Posicion 1\r\n");
-			writeString("2 -> Posicion 2\r\n");
-			writeString("3 -> Posicion 3\r\n");
-			writeString("4 -> Posicion 4\r\n");
-			writeString("5 -> Posicion 5\r\n");
+			writeString("1; > Posicion 1:Sorpresa\r\n");
+			writeString("2; > Posicion 2:Neutral viendo Lado D\r\n");
+			writeString("3; > Posicion 3:Neutral viendo Lado iz\r\n");
+			writeString("4; > Posicion 4:Durmiendo\r\n");
+			writeString("5; > Posicion 5:Editable por usuario\r\n");
 
-			writeString("x -> salir\r\n");
+			writeString("x; para salir\r\n");
 		}
 		
 		//================ ADC MANUAL ================//
 		
 		else if (strcmp(buffer, "4") == 0)
 		{
+			//leds de estados:
+			PORTD &= ~(1 << PORTD7);   // apagar PD7
+			// encender PB0 
+			PORTB |= (1 << PORTB0);
+			
+			//logica de mi estado:
 			modo = 3;
 
 			writeString("Modo ADC Manual\r\n");
@@ -210,17 +236,23 @@ void processCommand(void)
 
 		else if (strcmp(buffer, "5") == 0)
 		{
+			//leds de estados:
+			PORTD |= (1 << PORTD7);   // Enciende PD7
+			// encender PB0 (por si se encuentra apagado)
+			PORTB |= (1 << PORTB0);
+			
+			//logica de mi estado:
 			modo = 5;
 
 			writeString("\r\n===== EDITAR POSICIONES =====\r\n");
 
-			writeString("1 -> Editar Posicion 1\r\n");
-			writeString("2 -> Editar Posicion 2\r\n");
-			writeString("3 -> Editar Posicion 3\r\n");
-			writeString("4 -> Editar Posicion 4\r\n");
-			writeString("5 -> Editar Posicion 5\r\n");
+			writeString("1; > Editar Posicion 1\r\n");
+			writeString("2; > Editar Posicion 2\r\n");
+			writeString("3; > Editar Posicion 3\r\n");
+			writeString("4; > Editar Posicion 4\r\n");
+			writeString("5; > Editar Posicion 5\r\n");
 
-			writeString("x -> salir\r\n");
+			writeString("x; para salir\r\n");
 		}
 		
 		else
@@ -235,122 +267,25 @@ void processCommand(void)
 
 
 	//================ MODO OJOS ================//
-/*
-	else if (modo == 1)
-	{//NO HAY SERVO SELECCIONADO
-
-		if (servoSeleccionado == 0)
-		{
-			if (strcmp(buffer, "1") == 0)// en caso se quiera editar el angulo de base izquierdo
-			{
-				servoSeleccionado = 1;
-
-				writeString("\r\nServo I1 seleccionado\r\n");
-				writeString("Ingrese angulo 0-180;\r\n");
-			}
-
-			else if (strcmp(buffer, "2") == 0)//en caso se quiera editar el angulo de base derecho
-			{
-				servoSeleccionado = 2;
-
-				writeString("\r\nServo D1 seleccionado\r\n");
-				writeString("Ingrese angulo 0-180;\r\n");
-			}
-
-			else if (strcmp(buffer, "3") == 0)//en caso se quiera editar el angulo de ojo izquierda
-			{
-				servoSeleccionado = 3;
-
-				writeString("\r\nServo I2 seleccionado\r\n");
-				writeString("Ingrese angulo 0-180;\r\n");
-			}
-
-			else if (strcmp(buffer, "4") == 0)////en caso se quiera editar el angulo de ojo derecho
-			{
-				servoSeleccionado = 4;
-
-				writeString("\r\nServo D2 seleccionado\r\n");
-				writeString("Ingrese angulo 0-180;\r\n");
-			}
-
-			else if (strcmp(buffer, "x") == 0)
-			{
-				modo = 0;
-
-				printMenu();
-			}
-
-			else
-			{
-				writeString("Servo invalido\r\n");
-			}
-		}
-
-		//YA hay un servo seleccionado (un motor)
-
-		else
-		{
-			uint8_t ang = atoi(buffer);
-
-			if (ang > 180)
-			{
-				ang = 180;
-			}
-
-			switch (servoSeleccionado)
-			{
-				case 1:
-				PWM1_SetDuty(ServoToOCR(ang));
-				writeString("I1 -> ");
-				break;
-
-				case 2:
-				PWM1_SetDuty2(ServoToOCR(ang));
-				writeString("D1 -> ");
-				break;
-
-				case 3:
-				PWM0_SetDuty1(ServoToTicks(ang));
-				writeString("I2 -> ");
-				break;
-
-				case 4:
-				PWM0_SetDuty2(ServoToTicks(ang));
-				writeString("D2 -> ");
-				break;
-			}
-
-			itoa(ang, out, 10);
-
-			writeString(out);
-			writeString("\r\n");
-
-			// Reset de selección por si quiere seleccionar otro dentro del mismo grupo de motores (ojos y bases)
-			servoSeleccionado = 0;
-
-			writeString("\r\nSeleccione otro servo:\r\n");
-			writeString("1 -> I1\r\n");
-			writeString("2 -> D1\r\n");
-			writeString("3 -> I2\r\n");
-			writeString("4 -> D2\r\n");
-			writeString("x -> salir\r\n");
-		
-		
-		}
-	}
-*/	
 	else if (modo == 1)
 	{
+		//leds de estados:
+		PORTD |= (1 << PORTD7);   // Enciende PD7
+		// apagar PB0 (por si se encuentra encendido)
+		PORTB &= ~(1 << PORTB0);
+		
+		//logica de mi estado:
+		
 		if (strncmp(buffer, "I1:", 3) == 0)
 		{
 			uint8_t ang = atoi(&buffer[3]);
-
+			//se limita el ángulo para que no sobrepase los 180
 			if (ang > 180)
 			{
 				ang = 180;
 			}
 
-			PWM1_SetDuty(ServoToOCR(ang));
+			PWM1_SetDuty(ServoToOCR(ang)); 
 
 			writeString("I1 -> ");
 
@@ -419,6 +354,8 @@ void processCommand(void)
 
 		else if (strcmp(buffer, "x") == 0)
 		{
+			PORTD &= ~(1 << PORTD7);   // Apaga PD7--- mi led de estado uart
+			
 			modo = 0;
 
 			printMenu();
@@ -433,6 +370,13 @@ void processCommand(void)
 
 		else if (modo == 2)
 		{
+			//led de estados
+			PORTD |= (1 << PORTD7);   // Enciende PD7
+
+			// apagar PB0 (por si se encuentra encendido)
+			PORTB &= ~(1 << PORTB0);
+			
+			//lógica del modo
 			if (strncmp(buffer, "M1:", 3) == 0)
 			{
 			
@@ -475,6 +419,8 @@ void processCommand(void)
 
 			else if (strcmp(buffer, "x") == 0)
 			{
+				PORTD &= ~(1 << PORTD7);   // Apaga PD7--- mi led de estado uart
+				
 				modo = 0;
 
 				printMenu();
@@ -485,12 +431,22 @@ void processCommand(void)
 				writeString("Comando invalido\r\n");
 			}
 		}
-//  MODO PARA LA LECTURA adc la opción 4 de mi menú
+// ================ MODO PARA LA LECTURA// adc la opción 4 de mi menú
 
 		else if (modo == 3)
 		{
+			//led de estados
+			PORTD &= ~(1 << PORTD7);   // apagar PD7
+
+			// apagar PB0 (apagaaaaar
+			PORTB &= ~(1 << PORTB0);//apagar pb0
+			
+			//lógica del modo
+			
+			
 			if (strcmp(buffer, "x") == 0)
 			{
+				PORTB &= ~(1 << PORTB7);   // Apaga Pb0--- mi led de indicador de estado manual
 				modo = 0;
 
 				writeString("Saliendo modo ADC\r\n");
@@ -504,7 +460,15 @@ void processCommand(void)
 		{
 			if (strcmp(buffer, "1") == 0)
 			{
-				writeString("Reproduciendo Posicion 1\r\n");
+				//led de estados
+				PORTD |= (1 << PORTD7);   // encender PD7
+
+				// encender PB0 
+				PORTB |= (1 << PORTB0); //encender mi led
+				
+				//lógica del modo
+				
+				writeString("Reproduciendo Posición 1: Sorpresa\r\n");
 
 				// Pose_Load(1);
 
@@ -514,12 +478,12 @@ void processCommand(void)
 
 				
 
-				writeString("Posicion aplicada\r\n");
+				writeString("Posición aplicada\r\n");
 			}
 
 			else if (strcmp(buffer, "2") == 0)
 			{
-				writeString("Reproduciendo Posicion 2\r\n");
+				writeString("Reproduciendo Posición 2: Neutral viendo Lado D\r\n");
 
 				// Pose_Load(2);
 				ServoMemory_LoadAndApply(2);
@@ -527,24 +491,24 @@ void processCommand(void)
 				ServoMemory_PrintEEPROM();
 				
 
-				writeString("Posicion aplicada\r\n");
+				writeString("Posición aplicada\r\n");
 			}
 
 			else if (strcmp(buffer, "3") == 0)
 			{
-				writeString("Reproduciendo Posicion 3\r\n");
+				writeString("Reproduciendo Posición 3: Neutral viendo Lado Iz\r\n");
 
 				// Pose_Load(3);
 				ServoMemory_LoadAndApply(3);
 
 				ServoMemory_PrintEEPROM();
 				
-				writeString("Posicion aplicada\r\n");
+				writeString("Posición aplicada\r\n");
 			}
 
 			else if (strcmp(buffer, "4") == 0)
 			{
-				writeString("Reproduciendo Posicion 4\r\n");
+				writeString("Reproduciendo Posicion 4: Durmiendo\r\n");
 
 				// Pose_Load(4);
 				ServoMemory_LoadAndApply(4);
@@ -552,12 +516,12 @@ void processCommand(void)
 				ServoMemory_PrintEEPROM();
 				
 
-				writeString("Posicion aplicada\r\n");
+				writeString("Posición aplicada\r\n");
 			}
 
 			else if (strcmp(buffer, "5") == 0)
 			{
-				writeString("Reproduciendo Posicion 5\r\n");
+				writeString("Reproduciendo Posición 5: la editable por usuario\r\n");
 
 				// Pose_Load(5);
 				ServoMemory_LoadAndApply(5);
@@ -565,11 +529,13 @@ void processCommand(void)
 				ServoMemory_PrintEEPROM();
 				
 
-				writeString("Posicion aplicada\r\n");
+				writeString("Posición aplicada\r\n");
 			}
 
 			else if (strcmp(buffer, "x") == 0)
 			{
+				PORTB &= ~(1 << PORTB0);   // Apaga PB0--- mi led de estado EEPROM
+				PORTD &= ~(1 << PORTD7);   // Apaga PD7--- mi led de estado EEEPROM
 				modo = 0;
 
 				printMenu();
@@ -586,6 +552,15 @@ void processCommand(void)
 		{
 			if (strcmp(buffer, "1") == 0)
 			{
+				
+				//led de estados
+				PORTD |= (1 << PORTD7);   // encender PD7
+
+				// encender PB0
+				PORTB |= (1 << PORTB0); //encender mi led
+				
+				//lógica del modo
+				
 				writeString("Editando Posicion 1\r\n");
 
 				// Pose_Edit(1);
@@ -666,6 +641,9 @@ void processCommand(void)
 
 			else if (strcmp(buffer, "x") == 0)
 			{
+				PORTB &= ~(1 << PORTB0);   // Apaga PB0--- mi led de estado EEPROM
+				PORTD &= ~(1 << PORTD7);   // Apaga PD7--- mi led de estado EEEPROM
+				
 				modo = 0;
 
 				printMenu();
